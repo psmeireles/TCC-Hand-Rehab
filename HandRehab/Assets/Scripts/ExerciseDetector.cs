@@ -128,6 +128,17 @@ public class ExerciseDetector : MonoBehaviour {
         }
     }
 
+    GameObject summonBoulder(GameObject aim) {
+        GameObject boulder = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        boulder.AddComponent<Rigidbody>();
+        boulder.GetComponent<Renderer>().material.color = Color.red;
+        boulder.transform.position = aim.transform.position;
+        boulder.transform.SetLocalY(25f);
+        float radius = aim.transform.localScale.x;
+        boulder.transform.localScale *= radius;
+        return boulder;
+    }
+
     bool processRotationExercise(Hand hand) {
         if (rotatingHand) {
             if (aim.transform.localScale.x < 3) {
@@ -143,7 +154,9 @@ public class ExerciseDetector : MonoBehaviour {
             Debug.Log("Finished rotation exercise");
             rotatingHand = false;
             aim.SetActive(false);
+            summonBoulder(aim);
             aim.transform.localScale = new Vector3(0.1f, 0.05f, 0.1f);
+            
         }
 
         return rotatingHand;
