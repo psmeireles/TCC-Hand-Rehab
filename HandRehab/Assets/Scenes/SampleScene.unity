@@ -151,6 +151,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerRig: {fileID: 1469067731}
   leftHandObject: {fileID: 1146305690}
+  camera: {fileID: 1330807292}
+  aim: {fileID: 4507066885314189466, guid: bd76e6794e2540744a074ee287fa1263, type: 3}
 --- !u!4 &189574049
 Transform:
   m_ObjectHideFlags: 0
@@ -263,6 +265,12 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 1655767532}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1330807292 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1339460489974520, guid: dae2e2be31c98324eac460f702db97e9,
+    type: 3}
+  m_PrefabInstance: {fileID: 1655767532}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1422145624
 GameObject:
   m_ObjectHideFlags: 0
@@ -275,7 +283,7 @@ GameObject:
   - component: {fileID: 1422145627}
   - component: {fileID: 1422145626}
   - component: {fileID: 1422145625}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Plane
   m_TagString: Untagged
   m_Icon: {fileID: 0}

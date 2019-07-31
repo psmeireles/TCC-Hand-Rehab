@@ -7,18 +7,25 @@ using UnityEngine;
 public class ExerciseDetector : MonoBehaviour {
     public GameObject playerRig;
     public GameObject leftHandObject;
+    public GameObject camera;
+    public GameObject aim;
 
     LeapProvider provider;
     bool closedHand = false;
+    bool rotatingHand = false;
     GameObject sphere;
 
     float GRAB_TRESHHOLD = 0.063f;
+    float ROTATION_UPPER_TRESHHOLD = 3f;
+    float ROTATION_LOWER_TRESHHOLD = 0.1f;
 
 
 
     // Start is called before the first frame update
     void Start() {
         provider = FindObjectOfType<LeapProvider>();
+        aim = GameObject.Instantiate(aim);
+        aim.SetActive(false);
     }
 
     // Update is called once per frame
@@ -38,7 +45,11 @@ public class ExerciseDetector : MonoBehaviour {
         }
 
         if(leftHand != null) {
-            processClosedHand(leftHand);
+            bool isPerformingFistExercise = processFistExercise(leftHand);
+
+            if (!isPerformingFistExercise) {
+                processRotationExercise(leftHand);
+            }
         }
     }
 
@@ -73,7 +84,7 @@ public class ExerciseDetector : MonoBehaviour {
         return fingersExtended == 5;
     }
 
-    void processClosedHand(Hand hand) {
+    bool processFistExercise(Hand hand) {
         if (isHandClosed(hand)) {
             if (!closedHand) {
                 closedHand = true;
@@ -88,7 +99,7 @@ public class ExerciseDetector : MonoBehaviour {
                     sphere.transform.localScale *= (sphere.transform.localScale.x + 0.001f) / sphere.transform.localScale.x;
             }
         }
-        else if (isHandOpened(hand)){
+        else if (closedHand && isHandOpened(hand)){
             closedHand = false;
             if(sphere != null) {
                 sphere.GetComponent<Rigidbody>().AddForce(playerRig.transform.rotation * hand.Arm.Direction.ToVector3() * 1000f);
@@ -99,5 +110,42 @@ public class ExerciseDetector : MonoBehaviour {
         if(sphere != null) {
             sphere.transform.position = hand.PalmPosition.ToVector3();
         }
+        return closedHand;
+    }
+
+    void cameraAim() {
+        RaycastHit hit;
+        int layerMask = 1 << 8; // Only collides with ground
+        if (Physics.Raycast(camera.transform.position, camera.transform.forward, out hit, Mathf.Infinity, layerMask)) {
+            Debug.Log("Raycast hit!");
+            aim.transform.position = hit.point;
+            if (!aim.activeSelf) {
+                aim.SetActive(true);
+            }
+        }
+        else {
+            aim.SetActive(false);
+        }
+    }
+
+    bool processRotationExercise(Hand hand) {
+        if (rotatingHand) {
+            if (aim.transform.localScale.x < 3) {
+                aim.transform.localScale += new Vector3(0.01f, 0, 0.01f);
+            }
+            cameraAim();
+        }
+        if (Mathf.Abs(hand.PalmNormal.Roll) > ROTATION_UPPER_TRESHHOLD) {
+            Debug.Log("Started rotation exercise");
+            rotatingHand = true;
+        }
+        else if (rotatingHand && Mathf.Abs(hand.PalmNormal.Roll) < ROTATION_LOWER_TRESHHOLD){
+            Debug.Log("Finished rotation exercise");
+            rotatingHand = false;
+            aim.SetActive(false);
+            aim.transform.localScale = new Vector3(0.1f, 0.05f, 0.1f);
+        }
+
+        return rotatingHand;
     }
 }
