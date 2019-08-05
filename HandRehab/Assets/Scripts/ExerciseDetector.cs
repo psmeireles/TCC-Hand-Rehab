@@ -4,16 +4,28 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum ExerciseType {
+    FIST,
+    ROTATION
+}
+
+public class Exercise {
+    public ExerciseType type;
+    public bool hasStarted;
+    public bool hasFinished;
+}
+
 public class ExerciseDetector : MonoBehaviour {
     public GameObject playerRig;
     public GameObject leftHandObject;
-    public GameObject camera;
     public GameObject aim;
+    public Camera camera;
 
     LeapProvider provider;
     bool closedHand = false;
     bool rotatingHand = false;
     GameObject sphere;
+    Exercise currentExercise;
 
     float GRAB_TRESHHOLD = 0.063f;
     float ROTATION_UPPER_TRESHHOLD = 3f;
@@ -26,6 +38,10 @@ public class ExerciseDetector : MonoBehaviour {
         provider = FindObjectOfType<LeapProvider>();
         aim = GameObject.Instantiate(aim);
         aim.SetActive(false);
+        currentExercise = new Exercise {
+            hasStarted = false,
+            hasFinished = false
+        };
     }
 
     // Update is called once per frame
@@ -45,15 +61,40 @@ public class ExerciseDetector : MonoBehaviour {
         }
 
         if(leftHand != null) {
-            bool isPerformingFistExercise = processFistExercise(leftHand);
+            if (currentExercise.hasStarted && !currentExercise.hasFinished) {
+                switch (currentExercise.type) {
+                    case ExerciseType.FIST:
+                        currentExercise.hasFinished = !ProcessFistExercise(leftHand);
+                        break;
+                    case ExerciseType.ROTATION:
+                        currentExercise.hasFinished = !ProcessRotationExercise(leftHand);
+                        break;
+                }
+            }
+            else {
+                currentExercise.hasStarted = false;
+                bool fist  = ProcessFistExercise(leftHand);
+                
+                if (fist) {
+                    currentExercise.type = ExerciseType.FIST;
+                    currentExercise.hasStarted = true;
+                    currentExercise.hasFinished = false;
+                }
+                else {
+                    bool rotation = ProcessRotationExercise(leftHand);
 
-            if (!isPerformingFistExercise) {
-                processRotationExercise(leftHand);
+                    if (rotation) {
+                        currentExercise.type = ExerciseType.ROTATION;
+                        currentExercise.hasStarted = true;
+                        currentExercise.hasFinished = false;
+                    }
+                }
+
             }
         }
     }
 
-    bool isHandClosed(Hand hand) {
+    bool IsHandClosed(Hand hand) {
         int fingersGrasping = 0;
 
         if (hand != null) {
@@ -70,7 +111,7 @@ public class ExerciseDetector : MonoBehaviour {
         return fingersGrasping == 5;
     }
 
-    bool isHandOpened(Hand hand) {
+    bool IsHandOpened(Hand hand) {
         int fingersExtended = 0;
 
         if (hand != null) {
@@ -84,8 +125,8 @@ public class ExerciseDetector : MonoBehaviour {
         return fingersExtended == 5;
     }
 
-    bool processFistExercise(Hand hand) {
-        if (isHandClosed(hand)) {
+    bool ProcessFistExercise(Hand hand) {
+        if (IsHandClosed(hand)) {
             if (!closedHand) {
                 closedHand = true;
                 sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
@@ -99,7 +140,7 @@ public class ExerciseDetector : MonoBehaviour {
                     sphere.transform.localScale *= (sphere.transform.localScale.x + 0.001f) / sphere.transform.localScale.x;
             }
         }
-        else if (closedHand && isHandOpened(hand)){
+        else if (closedHand && IsHandOpened(hand)){
             closedHand = false;
             if(sphere != null) {
                 sphere.GetComponent<Rigidbody>().AddForce(playerRig.transform.rotation * hand.Arm.Direction.ToVector3() * 1000f);
@@ -113,11 +154,10 @@ public class ExerciseDetector : MonoBehaviour {
         return closedHand;
     }
 
-    void cameraAim() {
+    void CameraAim() {
         RaycastHit hit;
         int layerMask = 1 << 8; // Only collides with ground
         if (Physics.Raycast(camera.transform.position, camera.transform.forward, out hit, Mathf.Infinity, layerMask)) {
-            Debug.Log("Raycast hit!");
             aim.transform.position = hit.point;
             if (!aim.activeSelf) {
                 aim.SetActive(true);
@@ -128,7 +168,7 @@ public class ExerciseDetector : MonoBehaviour {
         }
     }
 
-    GameObject summonBoulder(GameObject aim) {
+    GameObject SummonBoulder(GameObject aim) {
         GameObject boulder = GameObject.CreatePrimitive(PrimitiveType.Sphere);
         boulder.AddComponent<Rigidbody>();
         boulder.GetComponent<Renderer>().material.color = Color.red;
@@ -139,22 +179,20 @@ public class ExerciseDetector : MonoBehaviour {
         return boulder;
     }
 
-    bool processRotationExercise(Hand hand) {
+    bool ProcessRotationExercise(Hand hand) {
         if (rotatingHand) {
             if (aim.transform.localScale.x < 3) {
                 aim.transform.localScale += new Vector3(0.01f, 0, 0.01f);
             }
-            cameraAim();
+            CameraAim();
         }
         if (Mathf.Abs(hand.PalmNormal.Roll) > ROTATION_UPPER_TRESHHOLD) {
-            Debug.Log("Started rotation exercise");
             rotatingHand = true;
         }
         else if (rotatingHand && Mathf.Abs(hand.PalmNormal.Roll) < ROTATION_LOWER_TRESHHOLD){
-            Debug.Log("Finished rotation exercise");
             rotatingHand = false;
             aim.SetActive(false);
-            summonBoulder(aim);
+            SummonBoulder(aim);
             aim.transform.localScale = new Vector3(0.1f, 0.05f, 0.1f);
             
         }
