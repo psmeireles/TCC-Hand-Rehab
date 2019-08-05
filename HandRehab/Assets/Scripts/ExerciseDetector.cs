@@ -6,7 +6,9 @@ using UnityEngine;
 
 public enum ExerciseType {
     FIST,
-    ROTATION
+    ROTATION,
+    WRIST_CURL,
+    UNDEFINED
 }
 
 public class Exercise {
@@ -22,15 +24,14 @@ public class ExerciseDetector : MonoBehaviour {
     public Camera camera;
 
     LeapProvider provider;
-    bool closedHand = false;
-    bool rotatingHand = false;
     GameObject sphere;
     Exercise currentExercise;
 
     float GRAB_TRESHHOLD = 0.063f;
     float ROTATION_UPPER_TRESHHOLD = 3f;
     float ROTATION_LOWER_TRESHHOLD = 0.1f;
-
+    float WRIST_CURL_LOWER_TRESHHOLD = -25f;
+    float WRIST_CURL_UPPER_TRESHHOLD = 40f;
 
 
     // Start is called before the first frame update
@@ -39,6 +40,7 @@ public class ExerciseDetector : MonoBehaviour {
         aim = GameObject.Instantiate(aim);
         aim.SetActive(false);
         currentExercise = new Exercise {
+            type = ExerciseType.UNDEFINED,
             hasStarted = false,
             hasFinished = false
         };
@@ -61,37 +63,30 @@ public class ExerciseDetector : MonoBehaviour {
         }
 
         if(leftHand != null) {
-            if (currentExercise.hasStarted && !currentExercise.hasFinished) {
+
+            Debug.DrawLine(leftHand.WristPosition.ToVector3(), (leftHand.WristPosition + leftHand.Direction).ToVector3() * 10, Color.green);
+            Debug.DrawLine(leftHand.Arm.Center.ToVector3(), (leftHand.Arm.Center + leftHand.Arm.Direction).ToVector3() * 10, Color.red);
+            ;            if (currentExercise.hasStarted && !currentExercise.hasFinished) {
                 switch (currentExercise.type) {
                     case ExerciseType.FIST:
-                        currentExercise.hasFinished = !ProcessFistExercise(leftHand);
+                        ProcessFistExercise(leftHand);
                         break;
                     case ExerciseType.ROTATION:
-                        currentExercise.hasFinished = !ProcessRotationExercise(leftHand);
+                        ProcessRotationExercise(leftHand);
+                        break;
+                    case ExerciseType.WRIST_CURL:
+                        ProcessWristCurlExercise(leftHand);
                         break;
                 }
             }
             else {
+                currentExercise.type = ExerciseType.UNDEFINED;
                 currentExercise.hasStarted = false;
-                bool fist  = ProcessFistExercise(leftHand);
-                
-                if (fist) {
-                    currentExercise.type = ExerciseType.FIST;
-                    currentExercise.hasStarted = true;
-                    currentExercise.hasFinished = false;
-                }
-                else {
-                    bool rotation = ProcessRotationExercise(leftHand);
-
-                    if (rotation) {
-                        currentExercise.type = ExerciseType.ROTATION;
-                        currentExercise.hasStarted = true;
-                        currentExercise.hasFinished = false;
-                    }
-                }
-
+                currentExercise.hasFinished = false;
+                ProcessExercises(leftHand);
             }
         }
+
     }
 
     bool IsHandClosed(Hand hand) {
@@ -125,23 +120,23 @@ public class ExerciseDetector : MonoBehaviour {
         return fingersExtended == 5;
     }
 
-    bool ProcessFistExercise(Hand hand) {
+    void ProcessFistExercise(Hand hand) {
         if (IsHandClosed(hand)) {
-            if (!closedHand) {
-                closedHand = true;
+            if (currentExercise.type != ExerciseType.FIST) {
+                currentExercise.type = ExerciseType.FIST;
+                currentExercise.hasStarted = true;
                 sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
                 sphere.AddComponent<Rigidbody>();
                 var renderer = sphere.GetComponent<Renderer>();
                 renderer.material.color = Color.red;
                 sphere.transform.localScale = Vector3.one / 100f;
             }
-            else {
-                if (sphere.transform.localScale.x < 0.12)
-                    sphere.transform.localScale *= (sphere.transform.localScale.x + 0.001f) / sphere.transform.localScale.x;
+            else if (sphere?.transform.localScale.x < 0.12) {
+                sphere.transform.localScale *= (sphere.transform.localScale.x + 0.001f) / sphere.transform.localScale.x;
             }
         }
-        else if (closedHand && IsHandOpened(hand)){
-            closedHand = false;
+        else if (currentExercise.hasStarted && IsHandOpened(hand)){
+            currentExercise.hasFinished = true;
             if(sphere != null) {
                 sphere.GetComponent<Rigidbody>().AddForce(playerRig.transform.rotation * hand.Arm.Direction.ToVector3() * 1000f);
                 sphere = null;
@@ -151,7 +146,6 @@ public class ExerciseDetector : MonoBehaviour {
         if(sphere != null) {
             sphere.transform.position = hand.PalmPosition.ToVector3();
         }
-        return closedHand;
     }
 
     void CameraAim() {
@@ -179,24 +173,58 @@ public class ExerciseDetector : MonoBehaviour {
         return boulder;
     }
 
-    bool ProcessRotationExercise(Hand hand) {
-        if (rotatingHand) {
+    void ProcessRotationExercise(Hand hand) {
+        if (currentExercise.hasStarted) {
             if (aim.transform.localScale.x < 3) {
                 aim.transform.localScale += new Vector3(0.01f, 0, 0.01f);
             }
             CameraAim();
         }
-        if (Mathf.Abs(hand.PalmNormal.Roll) > ROTATION_UPPER_TRESHHOLD) {
-            rotatingHand = true;
+        else if (Mathf.Abs(hand.PalmNormal.Roll) > ROTATION_UPPER_TRESHHOLD && IsHandOpened(hand)) {
+            currentExercise.type = ExerciseType.ROTATION;
+            currentExercise.hasStarted = true;
         }
-        else if (rotatingHand && Mathf.Abs(hand.PalmNormal.Roll) < ROTATION_LOWER_TRESHHOLD){
-            rotatingHand = false;
+        if (currentExercise.hasStarted && Mathf.Abs(hand.PalmNormal.Roll) < ROTATION_LOWER_TRESHHOLD && IsHandOpened(hand)){
+            currentExercise.hasFinished = true;
             aim.SetActive(false);
             SummonBoulder(aim);
             aim.transform.localScale = new Vector3(0.1f, 0.05f, 0.1f);
             
         }
+    }
 
-        return rotatingHand;
+    void ProcessWristCurlExercise(Hand hand) {
+        Vector3 planeNormal = Vector3.Cross(hand.Arm.Direction.ToVector3(), hand.Direction.ToVector3());
+        Vector3 handDir = Vector3.ProjectOnPlane(hand.Direction.ToVector3(), planeNormal);
+        Vector3 armDir = Vector3.ProjectOnPlane(hand.Arm.Direction.ToVector3(), planeNormal);
+        float angle = Vector3.SignedAngle(hand.Arm.Direction.ToVector3(), hand.Direction.ToVector3(), hand.RadialAxis());
+        Debug.Log(angle);
+        if (currentExercise.hasStarted) {
+            if (aim.transform.localScale.x < 3) {
+                aim.transform.localScale += new Vector3(0.01f, 0, 0.01f);
+            }
+            CameraAim();
+        }
+        else if (!currentExercise.hasStarted && angle < WRIST_CURL_LOWER_TRESHHOLD) {
+            currentExercise.type = ExerciseType.WRIST_CURL;
+            currentExercise.hasStarted = true;
+        }
+
+        if (currentExercise.hasStarted && angle > WRIST_CURL_UPPER_TRESHHOLD) {
+            currentExercise.hasFinished = true;
+            aim.SetActive(false);
+            SummonBoulder(aim);
+            aim.transform.localScale = new Vector3(0.1f, 0.05f, 0.1f);
+        }
+    }
+
+    void ProcessExercises(Hand hand) {
+        ProcessFistExercise(hand);
+        if (!currentExercise.hasStarted) {
+            ProcessRotationExercise(hand);
+            if (!currentExercise.hasStarted) {
+                ProcessWristCurlExercise(hand);
+            }
+        }
     }
 }
