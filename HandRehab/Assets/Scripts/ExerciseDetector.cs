@@ -47,11 +47,13 @@ public class ExerciseDetector : MonoBehaviour {
     public GameObject leftHandObject;
     public GameObject aim;
     public GameObject shield;
+    public GameObject fireball;
     public Camera camera;
 
     LeapProvider provider;
     GameObject sphere;
     Exercise currentExercise;
+    LineRenderer ray;
 
     float GRAB_TRESHHOLD = 0.063f;
     float ROTATION_UPPER_TRESHHOLD = 3f;
@@ -86,8 +88,8 @@ public class ExerciseDetector : MonoBehaviour {
         }
 
         if(leftHand != null) {
-            Debug.Log(Mathf.Abs(leftHand.PalmNormal.Roll));
-            Debug.Log(currentExercise.type.ToString());
+            //Debug.Log(Mathf.Abs(leftHand.PalmNormal.Roll));
+            //Debug.Log(currentExercise.type.ToString());
             if (currentExercise.hasStarted && !currentExercise.hasFinished) {
                 switch (currentExercise.type) {
                     case ExerciseType.FIST:
@@ -149,26 +151,35 @@ public class ExerciseDetector : MonoBehaviour {
         if (IsHandClosed(hand) && IsHandPointingForward(hand)) {
             if (currentExercise.type != ExerciseType.FIST) {
                 currentExercise.StartExercise(ExerciseType.FIST);
-                sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-                sphere.AddComponent<Rigidbody>();
-                var renderer = sphere.GetComponent<Renderer>();
-                renderer.material.color = Color.red;
-                sphere.transform.localScale = Vector3.one / 100f;
+                sphere = GameObject.Instantiate(fireball);
             }
-            else if (sphere?.transform.localScale.x < 0.12) {
-                sphere.transform.localScale *= (sphere.transform.localScale.x + 0.001f) / sphere.transform.localScale.x;
+            else {
+                if (sphere?.transform.localScale.x < 0.12) {
+                    sphere.transform.localScale *= (sphere.transform.localScale.x + 0.001f) / sphere.transform.localScale.x;
+                }
+
+
+                GameObject myLine = new GameObject();
+                myLine.transform.position = hand.PalmPosition.ToVector3();
+                myLine.AddComponent<LineRenderer>();
+                LineRenderer lr = myLine.GetComponent<LineRenderer>();
+                lr.SetColors(Color.blue, Color.red);
+                lr.SetWidth(0.1f, 0.1f);
+                lr.SetPosition(0, hand.PalmPosition.ToVector3());
+                lr.SetPosition(1, hand.PalmPosition.ToVector3() + hand.Arm.Direction.ToVector3()*100);
+                GameObject.Destroy(myLine, 0.01f);
             }
         }
         else if (currentExercise.hasStarted && IsHandOpened(hand) && IsHandPointingForward(hand)){
             currentExercise.FinishExercise();
             if (sphere != null) {
-                sphere.GetComponent<Rigidbody>().AddForce(playerRig.transform.rotation * hand.Arm.Direction.ToVector3() * 1000f);
+                sphere.GetComponent<Rigidbody>().AddForce(playerRig.transform.rotation * hand.PalmNormal.ToVector3() * 1000f);
                 sphere = null;
             }
         }
 
         if(sphere != null) {
-            sphere.transform.position = hand.PalmPosition.ToVector3();
+            sphere.transform.position = hand.PalmPosition.ToVector3() + hand.PalmNormal.ToVector3().normalized * 0.12f;
         }
     }
 
