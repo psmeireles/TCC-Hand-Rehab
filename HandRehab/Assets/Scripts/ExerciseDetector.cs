@@ -63,10 +63,9 @@ public class ExerciseDetector : MonoBehaviour {
         }
 
         if(leftHand != null) {
-
-            Debug.DrawLine(leftHand.WristPosition.ToVector3(), (leftHand.WristPosition + leftHand.Direction).ToVector3() * 10, Color.green);
-            Debug.DrawLine(leftHand.Arm.Center.ToVector3(), (leftHand.Arm.Center + leftHand.Arm.Direction).ToVector3() * 10, Color.red);
-            ;            if (currentExercise.hasStarted && !currentExercise.hasFinished) {
+            Debug.Log(Mathf.Abs(leftHand.PalmNormal.Roll));
+            Debug.Log(currentExercise.type.ToString());
+            if (currentExercise.hasStarted && !currentExercise.hasFinished) {
                 switch (currentExercise.type) {
                     case ExerciseType.FIST:
                         ProcessFistExercise(leftHand);
@@ -120,8 +119,13 @@ public class ExerciseDetector : MonoBehaviour {
         return fingersExtended == 5;
     }
 
+    bool IsHandPointingForward(Hand hand) {
+        float dot = Vector3.Dot(hand.PalmNormal.ToVector3(), camera.transform.forward);
+        return dot > 0;
+    }
+
     void ProcessFistExercise(Hand hand) {
-        if (IsHandClosed(hand)) {
+        if (IsHandClosed(hand) && IsHandPointingForward(hand)) {
             if (currentExercise.type != ExerciseType.FIST) {
                 currentExercise.type = ExerciseType.FIST;
                 currentExercise.hasStarted = true;
@@ -135,7 +139,7 @@ public class ExerciseDetector : MonoBehaviour {
                 sphere.transform.localScale *= (sphere.transform.localScale.x + 0.001f) / sphere.transform.localScale.x;
             }
         }
-        else if (currentExercise.hasStarted && IsHandOpened(hand)){
+        else if (currentExercise.hasStarted && IsHandOpened(hand) && IsHandPointingForward(hand)){
             currentExercise.hasFinished = true;
             if(sphere != null) {
                 sphere.GetComponent<Rigidbody>().AddForce(playerRig.transform.rotation * hand.Arm.Direction.ToVector3() * 1000f);
@@ -194,23 +198,19 @@ public class ExerciseDetector : MonoBehaviour {
     }
 
     void ProcessWristCurlExercise(Hand hand) {
-        Vector3 planeNormal = Vector3.Cross(hand.Arm.Direction.ToVector3(), hand.Direction.ToVector3());
-        Vector3 handDir = Vector3.ProjectOnPlane(hand.Direction.ToVector3(), planeNormal);
-        Vector3 armDir = Vector3.ProjectOnPlane(hand.Arm.Direction.ToVector3(), planeNormal);
         float angle = Vector3.SignedAngle(hand.Arm.Direction.ToVector3(), hand.Direction.ToVector3(), hand.RadialAxis());
-        Debug.Log(angle);
         if (currentExercise.hasStarted) {
             if (aim.transform.localScale.x < 3) {
                 aim.transform.localScale += new Vector3(0.01f, 0, 0.01f);
             }
             CameraAim();
         }
-        else if (!currentExercise.hasStarted && angle < WRIST_CURL_LOWER_TRESHHOLD) {
+        else if (!currentExercise.hasStarted && angle < WRIST_CURL_LOWER_TRESHHOLD && !IsHandPointingForward(hand)) {
             currentExercise.type = ExerciseType.WRIST_CURL;
             currentExercise.hasStarted = true;
         }
 
-        if (currentExercise.hasStarted && angle > WRIST_CURL_UPPER_TRESHHOLD) {
+        if (currentExercise.hasStarted && angle > WRIST_CURL_UPPER_TRESHHOLD && !IsHandPointingForward(hand)) {
             currentExercise.hasFinished = true;
             aim.SetActive(false);
             SummonBoulder(aim);
