@@ -21,6 +21,7 @@ public class ExerciseDetector : MonoBehaviour {
     public GameObject playerRig;
     public GameObject leftHandObject;
     public GameObject aim;
+    public GameObject shield;
     public Camera camera;
 
     LeapProvider provider;
