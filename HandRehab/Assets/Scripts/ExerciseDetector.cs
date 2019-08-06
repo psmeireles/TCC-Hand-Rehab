@@ -15,6 +15,31 @@ public class Exercise {
     public ExerciseType type;
     public bool hasStarted;
     public bool hasFinished;
+    public float timeStarted;
+    public float timeFinished;
+
+    public Exercise() {
+        ResetExercise();
+    }
+
+    public void StartExercise(ExerciseType type) {
+        this.type = type;
+        this.hasStarted = true;
+        this.timeStarted = Time.time;
+    }
+
+    public void FinishExercise() {
+        this.hasFinished = true;
+        this.timeFinished = Time.time;
+    }
+
+    public void ResetExercise() {
+        this.type = ExerciseType.UNDEFINED;
+        this.hasStarted = false;
+        this.hasFinished = false;
+        this.timeStarted = -1;
+        this.timeFinished = -1;
+    }
 }
 
 public class ExerciseDetector : MonoBehaviour {
@@ -40,11 +65,8 @@ public class ExerciseDetector : MonoBehaviour {
         provider = FindObjectOfType<LeapProvider>();
         aim = GameObject.Instantiate(aim);
         aim.SetActive(false);
-        currentExercise = new Exercise {
-            type = ExerciseType.UNDEFINED,
-            hasStarted = false,
-            hasFinished = false
-        };
+        shield.SetActive(false);
+        currentExercise = new Exercise();
     }
 
     // Update is called once per frame
@@ -80,9 +102,7 @@ public class ExerciseDetector : MonoBehaviour {
                 }
             }
             else {
-                currentExercise.type = ExerciseType.UNDEFINED;
-                currentExercise.hasStarted = false;
-                currentExercise.hasFinished = false;
+                currentExercise.ResetExercise();
                 ProcessExercises(leftHand);
             }
         }
@@ -128,8 +148,7 @@ public class ExerciseDetector : MonoBehaviour {
     void ProcessFistExercise(Hand hand) {
         if (IsHandClosed(hand) && IsHandPointingForward(hand)) {
             if (currentExercise.type != ExerciseType.FIST) {
-                currentExercise.type = ExerciseType.FIST;
-                currentExercise.hasStarted = true;
+                currentExercise.StartExercise(ExerciseType.FIST);
                 sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
                 sphere.AddComponent<Rigidbody>();
                 var renderer = sphere.GetComponent<Renderer>();
@@ -141,8 +160,8 @@ public class ExerciseDetector : MonoBehaviour {
             }
         }
         else if (currentExercise.hasStarted && IsHandOpened(hand) && IsHandPointingForward(hand)){
-            currentExercise.hasFinished = true;
-            if(sphere != null) {
+            currentExercise.FinishExercise();
+            if (sphere != null) {
                 sphere.GetComponent<Rigidbody>().AddForce(playerRig.transform.rotation * hand.Arm.Direction.ToVector3() * 1000f);
                 sphere = null;
             }
@@ -179,22 +198,13 @@ public class ExerciseDetector : MonoBehaviour {
     }
 
     void ProcessRotationExercise(Hand hand) {
-        if (currentExercise.hasStarted) {
-            if (aim.transform.localScale.x < 3) {
-                aim.transform.localScale += new Vector3(0.01f, 0, 0.01f);
-            }
-            CameraAim();
-        }
-        else if (Mathf.Abs(hand.PalmNormal.Roll) > ROTATION_UPPER_TRESHHOLD && IsHandOpened(hand)) {
-            currentExercise.type = ExerciseType.ROTATION;
-            currentExercise.hasStarted = true;
+        if (!currentExercise.hasStarted && Mathf.Abs(hand.PalmNormal.Roll) > ROTATION_UPPER_TRESHHOLD && IsHandOpened(hand)) {
+            currentExercise.StartExercise(ExerciseType.ROTATION);
+            shield.SetActive(true);
         }
         if (currentExercise.hasStarted && Mathf.Abs(hand.PalmNormal.Roll) < ROTATION_LOWER_TRESHHOLD && IsHandOpened(hand)){
-            currentExercise.hasFinished = true;
-            aim.SetActive(false);
-            SummonBoulder(aim);
-            aim.transform.localScale = new Vector3(0.1f, 0.05f, 0.1f);
-            
+            currentExercise.FinishExercise();
+            shield.SetActive(false);
         }
     }
 
@@ -206,13 +216,12 @@ public class ExerciseDetector : MonoBehaviour {
             }
             CameraAim();
         }
-        else if (!currentExercise.hasStarted && angle < WRIST_CURL_LOWER_TRESHHOLD && !IsHandPointingForward(hand)) {
-            currentExercise.type = ExerciseType.WRIST_CURL;
-            currentExercise.hasStarted = true;
+        else if (!currentExercise.hasStarted && angle < WRIST_CURL_LOWER_TRESHHOLD && !IsHandPointingForward(hand) && hand.GrabStrength > 0.5) {
+            currentExercise.StartExercise(ExerciseType.WRIST_CURL);
         }
 
-        if (currentExercise.hasStarted && angle > WRIST_CURL_UPPER_TRESHHOLD && !IsHandPointingForward(hand)) {
-            currentExercise.hasFinished = true;
+        if (currentExercise.hasStarted && angle > WRIST_CURL_UPPER_TRESHHOLD && !IsHandPointingForward(hand) && hand.GrabStrength > 0.5) {
+            currentExercise.FinishExercise();
             aim.SetActive(false);
             SummonBoulder(aim);
             aim.transform.localScale = new Vector3(0.1f, 0.05f, 0.1f);
