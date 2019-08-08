@@ -53,7 +53,7 @@ public class ExerciseDetector : MonoBehaviour {
     LeapProvider provider;
     GameObject sphere;
     Exercise currentExercise;
-    LineRenderer ray;
+    GameObject myLine;
 
     float GRAB_TRESHHOLD = 0.063f;
     float ROTATION_UPPER_TRESHHOLD = 3f;
@@ -67,8 +67,15 @@ public class ExerciseDetector : MonoBehaviour {
         provider = FindObjectOfType<LeapProvider>();
         aim = GameObject.Instantiate(aim);
         aim.SetActive(false);
+        shield = GameObject.Instantiate(shield);
         shield.SetActive(false);
         currentExercise = new Exercise();
+
+        myLine = new GameObject();
+        myLine.AddComponent<LineRenderer>();
+        LineRenderer lr = myLine.GetComponent<LineRenderer>();
+        lr.SetColors(Color.blue, Color.red);
+        lr.SetWidth(0.1f, 0.1f);
     }
 
     // Update is called once per frame
@@ -90,6 +97,10 @@ public class ExerciseDetector : MonoBehaviour {
         if(leftHand != null) {
             //Debug.Log(Mathf.Abs(leftHand.PalmNormal.Roll));
             //Debug.Log(currentExercise.type.ToString());
+            myLine.transform.position = leftHand.PalmPosition.ToVector3();
+            LineRenderer lr = myLine.GetComponent<LineRenderer>();
+            lr.SetPosition(0, leftHand.PalmPosition.ToVector3());
+            lr.SetPosition(1, leftHand.PalmPosition.ToVector3() + leftHand.PalmNormal.ToVector3() * 100);
             if (currentExercise.hasStarted && !currentExercise.hasFinished) {
                 switch (currentExercise.type) {
                     case ExerciseType.FIST:
@@ -154,32 +165,22 @@ public class ExerciseDetector : MonoBehaviour {
                 sphere = GameObject.Instantiate(fireball);
             }
             else {
-                if (sphere?.transform.localScale.x < 0.12) {
+                if (sphere?.transform.localScale.x < 0.08) {
                     sphere.transform.localScale *= (sphere.transform.localScale.x + 0.001f) / sphere.transform.localScale.x;
                 }
-
-
-                GameObject myLine = new GameObject();
-                myLine.transform.position = hand.PalmPosition.ToVector3();
-                myLine.AddComponent<LineRenderer>();
-                LineRenderer lr = myLine.GetComponent<LineRenderer>();
-                lr.SetColors(Color.blue, Color.red);
-                lr.SetWidth(0.1f, 0.1f);
-                lr.SetPosition(0, hand.PalmPosition.ToVector3());
-                lr.SetPosition(1, hand.PalmPosition.ToVector3() + hand.Arm.Direction.ToVector3()*100);
-                GameObject.Destroy(myLine, 0.01f);
             }
         }
         else if (currentExercise.hasStarted && IsHandOpened(hand) && IsHandPointingForward(hand)){
             currentExercise.FinishExercise();
             if (sphere != null) {
-                sphere.GetComponent<Rigidbody>().AddForce(playerRig.transform.rotation * hand.PalmNormal.ToVector3() * 1000f);
+                sphere.GetComponent<Rigidbody>().AddForce(hand.PalmNormal.ToVector3() * 1500f);
+                GameObject.Destroy(sphere, 5);
                 sphere = null;
             }
         }
 
         if(sphere != null) {
-            sphere.transform.position = hand.PalmPosition.ToVector3() + hand.PalmNormal.ToVector3().normalized * 0.12f;
+            sphere.transform.position = hand.PalmPosition.ToVector3() + hand.PalmNormal.ToVector3().normalized * 0.15f;
         }
     }
 
@@ -209,11 +210,11 @@ public class ExerciseDetector : MonoBehaviour {
     }
 
     void ProcessRotationExercise(Hand hand) {
-        if (!currentExercise.hasStarted && Mathf.Abs(hand.PalmNormal.Roll) > ROTATION_UPPER_TRESHHOLD && IsHandOpened(hand)) {
+        if (!currentExercise.hasStarted && Mathf.Abs(hand.PalmNormal.Roll) > ROTATION_UPPER_TRESHHOLD && IsHandOpened(hand) && !IsHandPointingForward(hand)) {
             currentExercise.StartExercise(ExerciseType.ROTATION);
             shield.SetActive(true);
         }
-        if (currentExercise.hasStarted && Mathf.Abs(hand.PalmNormal.Roll) < ROTATION_LOWER_TRESHHOLD && IsHandOpened(hand)){
+        if (currentExercise.hasStarted && Mathf.Abs(hand.PalmNormal.Roll) < ROTATION_LOWER_TRESHHOLD && IsHandOpened(hand) && IsHandPointingForward(hand)) {
             currentExercise.FinishExercise();
             shield.SetActive(false);
         }
@@ -247,5 +248,6 @@ public class ExerciseDetector : MonoBehaviour {
                 ProcessWristCurlExercise(hand);
             }
         }
+        Debug.Log(currentExercise.type.ToString());
     }
 }
