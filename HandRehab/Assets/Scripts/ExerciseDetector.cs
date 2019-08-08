@@ -48,6 +48,7 @@ public class ExerciseDetector : MonoBehaviour {
     public GameObject aim;
     public GameObject shield;
     public GameObject fireball;
+    public GameObject boulder;
     public Camera camera;
 
     LeapProvider provider;
@@ -67,7 +68,7 @@ public class ExerciseDetector : MonoBehaviour {
         provider = FindObjectOfType<LeapProvider>();
         aim = GameObject.Instantiate(aim);
         aim.SetActive(false);
-        shield = GameObject.Instantiate(shield);
+        shield = GameObject.Instantiate(shield, camera.transform);
         shield.SetActive(false);
         currentExercise = new Exercise();
 
@@ -199,14 +200,12 @@ public class ExerciseDetector : MonoBehaviour {
     }
 
     GameObject SummonBoulder(GameObject aim) {
-        GameObject boulder = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-        boulder.AddComponent<Rigidbody>();
-        boulder.GetComponent<Renderer>().material.color = Color.red;
-        boulder.transform.position = aim.transform.position;
-        boulder.transform.SetLocalY(25f);
+        GameObject rock = GameObject.Instantiate(boulder);
+        rock.transform.position = aim.transform.position;
+        rock.transform.SetLocalY(25f);
         float radius = aim.transform.localScale.x;
-        boulder.transform.localScale *= radius;
-        return boulder;
+        rock.transform.localScale *= radius;
+        return rock;
     }
 
     void ProcessRotationExercise(Hand hand) {
