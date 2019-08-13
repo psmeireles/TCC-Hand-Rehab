@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class Character : MonoBehaviour
 {
-    public int maxHp;
-    int hp;
+    public float maxHp;
+    public float hp;
     // Start is called before the first frame update
     void Start()
     {
@@ -19,17 +19,19 @@ public class Character : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (hp == 0) {
-            if (this.tag != "Player") {
-                GameObject.DestroyImmediate(this);
-            }
-        }
     }
 
-    void Hit(int damage) {
+    public void Hit(int damage) {
         hp -= damage;
         if (hp < 0) {
             hp = 0;
+        }
+        if (hp == 0) {
+            if (this.tag != "Player") {
+                this.gameObject.SetActive(false);
+                CancelInvoke();
+                GameObject.Destroy(this, 5);
+            }
         }
     }
 }
