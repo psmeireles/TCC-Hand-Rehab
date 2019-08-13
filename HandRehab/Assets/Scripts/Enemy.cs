@@ -6,8 +6,6 @@ using UnityEngine.UI;
 public class Enemy : Character
 {
     public GameObject player;
-    public Slider hpBar;
-    public Image fill;
     // Start is called before the first frame update
     void Start()
     {
@@ -18,17 +16,6 @@ public class Enemy : Character
     // Update is called once per frame
     void Update()
     {
-        hpBar.value = this.hp;
-        float hpRatio = hp / maxHp;
-        if (hpRatio > 0.5) {
-            fill.color = Color.green;
-        }
-        else if (hpRatio > 0.25) {
-            fill.color = Color.yellow;
-        }
-        else {
-            fill.color = Color.red;
-        }
     }
 
     void Shoot() {
