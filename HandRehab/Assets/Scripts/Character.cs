@@ -10,17 +10,20 @@ public class Character : MonoBehaviour
     public Slider hpBar;
     public Image fill;
     // Start is called before the first frame update
-    void Start()
+    protected virtual void Start()
     {
         // Fallback hp
         if (maxHp == 0) {
             maxHp = 100;
         }
         hp = maxHp;
+        if (hpBar != null) {
+            hpBar.maxValue = maxHp;
+        }
     }
 
     // Update is called once per frame
-    void Update()
+    protected virtual void Update()
     {
         if (hpBar != null) {
             hpBar.value = this.hp;
