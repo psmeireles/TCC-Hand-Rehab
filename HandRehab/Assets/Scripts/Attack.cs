@@ -25,6 +25,6 @@ public class Attack : MonoBehaviour
             Character character = obj.GetComponent<Character>();
             character.Hit(damage);
         }
-        Destroy(this, 3);
+        Destroy(this.gameObject, 3);
     }
 }
