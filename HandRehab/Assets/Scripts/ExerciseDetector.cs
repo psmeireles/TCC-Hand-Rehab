@@ -47,7 +47,7 @@ public class ExerciseDetector : MonoBehaviour {
     public GameObject leftHandObject;
     public GameObject aim;
     public GameObject shield;
-    public GameObject fireball;
+    public GameObject chainLightning;
     public GameObject boulder;
     public Camera camera;
 
@@ -163,7 +163,7 @@ public class ExerciseDetector : MonoBehaviour {
         if (IsHandClosed(hand) && IsHandPointingForward(hand)) {
             if (currentExercise.type != ExerciseType.FIST) {
                 currentExercise.StartExercise(ExerciseType.FIST);
-                sphere = GameObject.Instantiate(fireball);
+                sphere = GameObject.Instantiate(chainLightning);
             }
             else {
                 if (sphere?.transform.localScale.x < 0.08) {
@@ -174,7 +174,7 @@ public class ExerciseDetector : MonoBehaviour {
         else if (currentExercise.hasStarted && IsHandOpened(hand) && IsHandPointingForward(hand)){
             currentExercise.FinishExercise();
             if (sphere != null) {
-                sphere.GetComponent<Rigidbody>().AddForce(hand.PalmNormal.ToVector3() * 1500f);
+                sphere.GetComponent<ChainLightning>().LightItUp(hand);
                 GameObject.Destroy(sphere, 5);
                 sphere = null;
             }

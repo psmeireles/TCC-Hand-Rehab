@@ -199,7 +199,7 @@ Light:
   m_BounceIntensity: 1
   m_ColorTemperature: 6570
   m_UseColorTemperature: 0
-  m_BoundingSphereOverride: {x: 0, y: 0, z: 8.042e-42, w: 1.02e-43}
+  m_BoundingSphereOverride: {x: 0, y: -7.151874e-19, z: 7.61e-43, w: -5.93986e-19}
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
@@ -519,5 +519,11 @@ PrefabInstance:
       propertyPath: m_AnchorMax.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2253396290854345931, guid: 2c5b654122aa1fa4b816efd87e51e97c,
+        type: 3}
+      propertyPath: chainLightning
+      value: 
+      objectReference: {fileID: 36679705616659117, guid: 854e7f5a3d876a54095d80d968b0d3a5,
+        type: 3}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 2c5b654122aa1fa4b816efd87e51e97c, type: 3}
