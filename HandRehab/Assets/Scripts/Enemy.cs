@@ -10,7 +10,7 @@ public class Enemy : Character
     protected override void Start()
     {
         base.Start();
-        InvokeRepeating("Shoot", 5, 5);
+        Invoke("Shoot", GenerateNextShotInterval());
     }
 
     // Update is called once per frame
@@ -25,7 +25,12 @@ public class Enemy : Character
         bullet.GetComponent<Renderer>().material.color = Color.blue;
         Rigidbody rb = bullet.AddComponent<Rigidbody>();
         bullet.transform.position = this.transform.position + this.transform.forward;
-        rb.AddForce((player.transform.position - this.transform.position) * 250);
+        rb.AddForce((player.transform.position - this.transform.position) * 150);
         GameObject.Destroy(bullet, 5);
+        Invoke("Shoot", GenerateNextShotInterval());
+    }
+
+    float GenerateNextShotInterval() {
+        return Random.Range(3, 10);
     }
 }
