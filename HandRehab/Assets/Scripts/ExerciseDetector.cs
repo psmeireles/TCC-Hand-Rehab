@@ -175,7 +175,7 @@ public class ExerciseDetector : MonoBehaviour {
             currentExercise.FinishExercise();
             if (sphere != null) {
                 sphere.GetComponent<ChainLightning>().LightItUp(hand);
-                GameObject.Destroy(sphere, 5);
+                GameObject.DestroyImmediate(sphere);
                 sphere = null;
             }
         }

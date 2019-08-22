@@ -40,7 +40,7 @@ public class Character : MonoBehaviour
         }
     }
 
-    public void Hit(int damage) {
+    public void Hit(float damage) {
         hp -= damage;
         if (hp < 0) {
             hp = 0;

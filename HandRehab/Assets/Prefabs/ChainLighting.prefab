@@ -104,4 +104,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d79a0c01d75b8ed4d97e542356521dab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  lightningBolt: {fileID: 558090738542326402, guid: c7276a52f02d71645b40cac6e0cb1865,
+    type: 3}
   range: 100
+  damage: 25
