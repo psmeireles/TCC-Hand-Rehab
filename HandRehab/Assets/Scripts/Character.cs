@@ -19,25 +19,14 @@ public class Character : MonoBehaviour
         hp = maxHp;
         if (hpBar != null) {
             hpBar.maxValue = maxHp;
+            hpBar.value = hp;
+            fill.color = Color.green;
         }
     }
 
     // Update is called once per frame
     protected virtual void Update()
     {
-        if (hpBar != null) {
-            hpBar.value = this.hp;
-            float hpRatio = hp / maxHp;
-            if (hpRatio > 0.5) {
-                fill.color = Color.green;
-            }
-            else if (hpRatio > 0.25) {
-                fill.color = Color.yellow;
-            }
-            else {
-                fill.color = Color.red;
-            }
-        }
     }
 
     public void Hit(float damage) {
@@ -52,5 +41,19 @@ public class Character : MonoBehaviour
                 GameObject.Destroy(this, 5);
             }
         }
+        if (hpBar != null) {
+            hpBar.value = this.hp;
+            float hpRatio = hp / maxHp;
+            if (hpRatio > 0.5) {
+                fill.color = Color.green;
+            }
+            else if (hpRatio > 0.25) {
+                fill.color = Color.yellow;
+            }
+            else {
+                fill.color = Color.red;
+            }
+        }
+        
     }
 }
