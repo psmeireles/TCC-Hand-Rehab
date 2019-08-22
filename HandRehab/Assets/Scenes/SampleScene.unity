@@ -199,7 +199,7 @@ Light:
   m_BounceIntensity: 1
   m_ColorTemperature: 6570
   m_UseColorTemperature: 0
-  m_BoundingSphereOverride: {x: 0, y: 6.2294347e+35, z: 8.8e-43, w: 5.2637226e+35}
+  m_BoundingSphereOverride: {x: 0, y: -0.00021432864, z: 7.82e-43, w: -0.0002885277}
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
@@ -375,6 +375,11 @@ PrefabInstance:
       propertyPath: player
       value: 
       objectReference: {fileID: 189574047}
+    - target: {fileID: 47794184718667471, guid: 7c3975ecf885a08438261a94bf8c61d9,
+        type: 3}
+      propertyPath: terrain
+      value: 
+      objectReference: {fileID: 859608397}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7c3975ecf885a08438261a94bf8c61d9, type: 3}
 --- !u!1001 &2253396290706798443
