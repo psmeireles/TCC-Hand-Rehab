@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static CharType;
 
 public class EnemyCreator : MonoBehaviour
 {
@@ -14,6 +15,8 @@ public class EnemyCreator : MonoBehaviour
     {
         for (int i = 0; i < numberOfEnemies; i++) {
             GameObject copy = GameObject.Instantiate(enemy);
+            var enemyInstance = copy.GetComponent<Enemy>();
+            enemyInstance.type = new CharType((Element)Random.Range((int)0, (int)4));
             copy.transform.position = player.transform.position + player.transform.forward * 20;
             copy.transform.RotateAround(player.transform.position, Vector3.up, 360 / numberOfEnemies * i);
             Vector3 enemyPosition = copy.transform.position;

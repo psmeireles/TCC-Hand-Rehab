@@ -44,7 +44,7 @@ GameObject:
   - component: {fileID: 8125820740851996833}
   - component: {fileID: 3978251471642739975}
   - component: {fileID: 4619930957162071096}
-  - component: {fileID: 6696308103721635605}
+  - component: {fileID: 1626944389562351759}
   m_Layer: 0
   m_Name: rock1_LOWuvd:Group11424_rock1_LOWuvd:polySurface1
   m_TagString: Untagged
@@ -141,7 +141,7 @@ MeshCollider:
   m_Convex: 1
   m_CookingOptions: 14
   m_Mesh: {fileID: 4300000, guid: ee4a35261634b924789b289e03b2ad4e, type: 3}
---- !u!114 &6696308103721635605
+--- !u!114 &1626944389562351759
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -153,4 +153,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7f3bc4d73f2081744ab288b12b23a0db, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  damage: 20
+  damage: 50

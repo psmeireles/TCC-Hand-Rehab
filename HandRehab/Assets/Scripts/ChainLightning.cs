@@ -36,7 +36,7 @@ public class ChainLightning : MonoBehaviour {
 
             // Finding enemies in chain
             while (nextEnemy != null) {
-                nextEnemy.GetComponent<Enemy>().Hit(damage);
+                nextEnemy.GetComponent<Enemy>().Hit(damage, Element.LIGHTNING);
                 currentPosition = nextPosition;
                 nextPosition = nextEnemy.transform.position;
                 positions.Add(nextPosition);

@@ -9,6 +9,7 @@ public class Character : MonoBehaviour
     public float hp;
     public Slider hpBar;
     public Image fill;
+    public CharType type;
     // Start is called before the first frame update
     protected virtual void Start()
     {
@@ -22,6 +23,9 @@ public class Character : MonoBehaviour
             hpBar.value = hp;
             fill.color = Color.green;
         }
+        if (type == null) {
+            type = new CharType(Element.NORMAL);
+        }
     }
 
     // Update is called once per frame
@@ -29,8 +33,16 @@ public class Character : MonoBehaviour
     {
     }
 
-    public void Hit(float damage) {
-        hp -= damage;
+    public void Hit(float damage, Element element) {
+        float damageMultiplier = 1;
+        if (element == type.getWeakness()) {
+            damageMultiplier = 2;
+        }
+        else if (element == type.element) {
+            damageMultiplier = 0.5f;
+        }
+
+        hp -= damage * damageMultiplier;
         if (hp < 0) {
             hp = 0;
         }
