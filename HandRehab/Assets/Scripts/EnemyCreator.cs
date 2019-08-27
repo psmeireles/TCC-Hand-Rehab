@@ -17,6 +17,7 @@ public class EnemyCreator : MonoBehaviour
             GameObject copy = GameObject.Instantiate(enemy);
             var enemyInstance = copy.GetComponent<Enemy>();
             enemyInstance.type = new CharType((Element)Random.Range((int)0, (int)4));
+            copy.GetComponent<Renderer>().material.color = enemyInstance.type.color;
             copy.transform.position = player.transform.position + player.transform.forward * 20;
             copy.transform.RotateAround(player.transform.position, Vector3.up, 360 / numberOfEnemies * i);
             Vector3 enemyPosition = copy.transform.position;

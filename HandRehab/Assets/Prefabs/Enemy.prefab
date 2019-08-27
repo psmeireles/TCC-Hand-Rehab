@@ -256,9 +256,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHp: 100
   hp: 100
-  player: {fileID: 2253396290854345972, guid: 2c5b654122aa1fa4b816efd87e51e97c, type: 3}
   hpBar: {fileID: 3492694303208711708}
   fill: {fileID: 5120167237548839335}
+  player: {fileID: 2253396290854345972, guid: 2c5b654122aa1fa4b816efd87e51e97c, type: 3}
+  projectile: {fileID: 1159322329801970741, guid: 725eddd4760483540a41b63da6b3e632,
+    type: 3}
 --- !u!54 &249897562
 Rigidbody:
   m_ObjectHideFlags: 0
