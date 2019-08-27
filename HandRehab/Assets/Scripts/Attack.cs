@@ -5,7 +5,7 @@ using UnityEngine;
 public class Attack : MonoBehaviour
 {
     public float damage;
-    public int element;
+    public Element element;
     // Start is called before the first frame update
     void Start()
     {
@@ -24,7 +24,7 @@ public class Attack : MonoBehaviour
         GameObject obj = collision.gameObject;
         if (obj.CompareTag("Player") || obj.CompareTag("Enemy")) {
             Character character = obj.GetComponent<Character>();
-            character.Hit(damage, (Element)element);
+            character.Hit(damage, element);
         }
         Destroy(this.gameObject, 3);
     }

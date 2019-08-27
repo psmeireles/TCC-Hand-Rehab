@@ -24,6 +24,7 @@ public class Enemy : Character
         this.transform.LookAt(player.transform);
         GameObject bullet = GameObject.Instantiate(projectile);
         bullet.GetComponent<Renderer>().material.color = this.type.color;
+        bullet.GetComponent<Attack>().element = this.type.element;
         Rigidbody rb = bullet.GetComponent<Rigidbody>();
         bullet.transform.position = this.transform.position + this.transform.forward*2;
         rb.AddForce((player.transform.position - this.transform.position) * 150);
