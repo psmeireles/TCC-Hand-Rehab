@@ -8,6 +8,7 @@ public enum ExerciseType {
     FIST,
     ROTATION,
     WRIST_CURL,
+    FINGER_CURL,
     UNDEFINED
 }
 
@@ -53,6 +54,9 @@ public class ExerciseDetector : MonoBehaviour {
 
     LeapProvider provider;
     GameObject sphere;
+    GameObject fingerCurlIndicator;
+    int fingerCurlNextFinger;
+    bool fingerCurlReadyToFire = false;
     Exercise currentExercise;
     GameObject myLine;
 
@@ -112,6 +116,9 @@ public class ExerciseDetector : MonoBehaviour {
                         break;
                     case ExerciseType.WRIST_CURL:
                         ProcessWristCurlExercise(leftHand);
+                        break;
+                    case ExerciseType.FINGER_CURL:
+                        ProcessFingerCurlExercise(leftHand);
                         break;
                 }
             }
@@ -239,12 +246,43 @@ public class ExerciseDetector : MonoBehaviour {
         }
     }
 
+    void ProcessFingerCurlExercise(Hand hand) {
+        
+        if (!currentExercise.hasStarted && !IsHandPointingForward(hand) && (hand.Fingers[1].TipPosition - hand.Fingers[0].TipPosition).MagnitudeSquared < 0.0005) {
+            currentExercise.StartExercise(ExerciseType.FINGER_CURL);
+            fingerCurlIndicator = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            fingerCurlIndicator.transform.localScale = new Vector3(0.02f, 0.02f, 0.02f);
+            fingerCurlNextFinger = 2;
+            fingerCurlReadyToFire = false;
+        }
+        else if (currentExercise.hasStarted && !fingerCurlReadyToFire && !IsHandPointingForward(hand) && (hand.Fingers[fingerCurlNextFinger].TipPosition - hand.Fingers[0].TipPosition).MagnitudeSquared < 0.0005) {
+            fingerCurlIndicator.transform.localScale += new Vector3(0.02f, 0.02f, 0.02f);
+            fingerCurlNextFinger++;
+            if(fingerCurlNextFinger == 5) {
+                fingerCurlReadyToFire = true;
+            }
+        }
+
+        if (fingerCurlIndicator != null) {
+            fingerCurlIndicator.transform.position = hand.PalmPosition.ToVector3() + hand.PalmNormal.ToVector3().normalized * 0.15f;
+        }
+
+        if (fingerCurlReadyToFire && IsHandPointingForward(hand) && IsHandOpened(hand)) {
+            Destroy(fingerCurlIndicator);
+        }
+
+        Debug.Log((hand.Fingers[1].TipPosition - hand.Fingers[0].TipPosition).MagnitudeSquared);
+    }
+
     void ProcessExercises(Hand hand) {
         ProcessFistExercise(hand);
         if (!currentExercise.hasStarted) {
             ProcessRotationExercise(hand);
             if (!currentExercise.hasStarted) {
                 ProcessWristCurlExercise(hand);
+                if (!currentExercise.hasStarted) {
+                    ProcessFingerCurlExercise(hand);
+                }
             }
         }
         Debug.Log(currentExercise.type.ToString());
