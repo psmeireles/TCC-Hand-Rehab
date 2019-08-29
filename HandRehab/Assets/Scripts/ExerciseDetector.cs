@@ -50,6 +50,7 @@ public class ExerciseDetector : MonoBehaviour {
     public GameObject shield;
     public GameObject chainLightning;
     public GameObject boulder;
+    public GameObject kamehameha;
     public Camera camera;
 
     LeapProvider provider;
@@ -57,8 +58,9 @@ public class ExerciseDetector : MonoBehaviour {
     GameObject fingerCurlIndicator;
     int fingerCurlNextFinger;
     bool fingerCurlReadyToFire = false;
+    bool fingerCurlFired = false;
     Exercise currentExercise;
-    GameObject myLine;
+    GameObject blast;
 
     float GRAB_TRESHHOLD = 0.063f;
     float ROTATION_UPPER_TRESHHOLD = 3f;
@@ -75,12 +77,6 @@ public class ExerciseDetector : MonoBehaviour {
         shield = GameObject.Instantiate(shield, camera.transform);
         shield.SetActive(false);
         currentExercise = new Exercise();
-
-        myLine = new GameObject();
-        myLine.AddComponent<LineRenderer>();
-        LineRenderer lr = myLine.GetComponent<LineRenderer>();
-        lr.SetColors(Color.blue, Color.red);
-        lr.SetWidth(0.1f, 0.1f);
     }
 
     // Update is called once per frame
@@ -100,12 +96,6 @@ public class ExerciseDetector : MonoBehaviour {
         }
 
         if(leftHand != null) {
-            //Debug.Log(Mathf.Abs(leftHand.PalmNormal.Roll));
-            //Debug.Log(currentExercise.type.ToString());
-            myLine.transform.position = leftHand.PalmPosition.ToVector3();
-            LineRenderer lr = myLine.GetComponent<LineRenderer>();
-            lr.SetPosition(0, leftHand.PalmPosition.ToVector3());
-            lr.SetPosition(1, leftHand.PalmPosition.ToVector3() + leftHand.PalmNormal.ToVector3() * 100);
             if (currentExercise.hasStarted && !currentExercise.hasFinished) {
                 switch (currentExercise.type) {
                     case ExerciseType.FIST:
@@ -246,16 +236,31 @@ public class ExerciseDetector : MonoBehaviour {
         }
     }
 
+    bool IsFingerPinching(Finger finger) {
+        Hand hand = provider.CurrentFrame.Hand(finger.HandId);
+
+        int extendedFingers = 0;
+        for (int i = 1; i < hand.Fingers.Count; i++) {
+            Finger f = hand.Fingers[i];
+            if (f.Id != finger.Id && !f.IsExtended)
+                return false;
+        }
+        
+        return (finger.TipPosition - hand.Fingers[0].TipPosition).MagnitudeSquared < 0.0005;
+    }
+
     void ProcessFingerCurlExercise(Hand hand) {
         
-        if (!currentExercise.hasStarted && !IsHandPointingForward(hand) && (hand.Fingers[1].TipPosition - hand.Fingers[0].TipPosition).MagnitudeSquared < 0.0005) {
+        if (!currentExercise.hasStarted && !IsHandPointingForward(hand) && IsFingerPinching(hand.Fingers[1])) {
             currentExercise.StartExercise(ExerciseType.FINGER_CURL);
             fingerCurlIndicator = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            fingerCurlIndicator.GetComponent<Renderer>().material.color = Color.red;
             fingerCurlIndicator.transform.localScale = new Vector3(0.02f, 0.02f, 0.02f);
             fingerCurlNextFinger = 2;
             fingerCurlReadyToFire = false;
+            fingerCurlFired = false;
         }
-        else if (currentExercise.hasStarted && !fingerCurlReadyToFire && !IsHandPointingForward(hand) && (hand.Fingers[fingerCurlNextFinger].TipPosition - hand.Fingers[0].TipPosition).MagnitudeSquared < 0.0005) {
+        else if (currentExercise.hasStarted && !fingerCurlReadyToFire && !IsHandPointingForward(hand) && IsFingerPinching(hand.Fingers[fingerCurlNextFinger])) {
             fingerCurlIndicator.transform.localScale += new Vector3(0.02f, 0.02f, 0.02f);
             fingerCurlNextFinger++;
             if(fingerCurlNextFinger == 5) {
@@ -267,11 +272,20 @@ public class ExerciseDetector : MonoBehaviour {
             fingerCurlIndicator.transform.position = hand.PalmPosition.ToVector3() + hand.PalmNormal.ToVector3().normalized * 0.15f;
         }
 
-        if (fingerCurlReadyToFire && IsHandPointingForward(hand) && IsHandOpened(hand)) {
+        if (fingerCurlReadyToFire && !fingerCurlFired && IsHandPointingForward(hand) && IsHandOpened(hand)) {
             Destroy(fingerCurlIndicator);
+            blast = Instantiate(kamehameha);
+            Destroy(blast, 5);
+            fingerCurlFired = true;
         }
 
-        Debug.Log((hand.Fingers[1].TipPosition - hand.Fingers[0].TipPosition).MagnitudeSquared);
+        if (blast != null) {
+            blast.transform.position = hand.PalmPosition.ToVector3() + hand.PalmNormal.ToVector3().normalized * 0.125f;
+            blast.transform.up = hand.PalmNormal.ToVector3();
+        }
+        else if (fingerCurlFired) {
+            currentExercise.FinishExercise();
+        }
     }
 
     void ProcessExercises(Hand hand) {

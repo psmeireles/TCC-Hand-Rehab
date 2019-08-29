@@ -566,6 +566,12 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 36679705616659117, guid: 854e7f5a3d876a54095d80d968b0d3a5,
         type: 3}
+    - target: {fileID: 2253396290854345931, guid: 2c5b654122aa1fa4b816efd87e51e97c,
+        type: 3}
+      propertyPath: kamehameha
+      value: 
+      objectReference: {fileID: 5997714321835017563, guid: 3bbfb4e95885d194c82ce5fb0a51dc73,
+        type: 3}
     - target: {fileID: 2253396290854345929, guid: 2c5b654122aa1fa4b816efd87e51e97c,
         type: 3}
       propertyPath: m_Enabled

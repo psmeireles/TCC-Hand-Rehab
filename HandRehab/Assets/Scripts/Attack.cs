@@ -28,4 +28,12 @@ public class Attack : MonoBehaviour
         }
         Destroy(this.gameObject, 3);
     }
+
+    private void OnTriggerStay(Collider collision) {
+        GameObject obj = collision.gameObject;
+        if (obj.CompareTag("Player") || obj.CompareTag("Enemy")) {
+            Character character = obj.GetComponent<Character>();
+            character.Hit(5f, element);
+        }
+    }
 }
