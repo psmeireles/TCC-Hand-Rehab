@@ -23,7 +23,9 @@ public class GameController : MonoBehaviour
                 Element element = (Element) System.Enum.Parse(typeof(Element), items[0]);
                 int numberOfEnemies = int.Parse(items[1]);
                 float spawnTime = float.Parse(items[2]);
-                StartCoroutine(SpawnEnemy(element, spawnTime));
+                for(int i = 0; i < numberOfEnemies; i++) {
+                    StartCoroutine(SpawnEnemy(element, spawnTime));
+                }
             }
 
         }
