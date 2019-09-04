@@ -52,6 +52,7 @@ public class ExerciseDetector : MonoBehaviour {
     public GameObject boulder;
     public GameObject kamehameha;
     public Camera camera;
+    public static List<ExerciseType> availableMagics;
 
     LeapProvider provider;
     GameObject sphere;
@@ -77,6 +78,7 @@ public class ExerciseDetector : MonoBehaviour {
         shield = GameObject.Instantiate(shield, camera.transform);
         shield.SetActive(false);
         currentExercise = new Exercise();
+        availableMagics = new List<ExerciseType>();
     }
 
     // Update is called once per frame
@@ -239,7 +241,6 @@ public class ExerciseDetector : MonoBehaviour {
     bool IsFingerPinching(Finger finger) {
         Hand hand = provider.CurrentFrame.Hand(finger.HandId);
 
-        int extendedFingers = 0;
         for (int i = 1; i < hand.Fingers.Count; i++) {
             Finger f = hand.Fingers[i];
             if (f.Id != finger.Id && !f.IsExtended)
@@ -289,13 +290,13 @@ public class ExerciseDetector : MonoBehaviour {
     }
 
     void ProcessExercises(Hand hand) {
-        ProcessFistExercise(hand);
+        if(availableMagics.Contains(ExerciseType.FIST)) ProcessFistExercise(hand);
         if (!currentExercise.hasStarted) {
-            ProcessRotationExercise(hand);
+            if (availableMagics.Contains(ExerciseType.ROTATION)) ProcessRotationExercise(hand);
             if (!currentExercise.hasStarted) {
-                ProcessWristCurlExercise(hand);
+                if (availableMagics.Contains(ExerciseType.WRIST_CURL)) ProcessWristCurlExercise(hand);
                 if (!currentExercise.hasStarted) {
-                    ProcessFingerCurlExercise(hand);
+                    if (availableMagics.Contains(ExerciseType.FINGER_CURL)) ProcessFingerCurlExercise(hand);
                 }
             }
         }

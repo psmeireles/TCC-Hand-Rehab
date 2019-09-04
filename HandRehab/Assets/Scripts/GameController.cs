@@ -79,6 +79,11 @@ public class GameController : MonoBehaviour
                     Invoke("endTimeBasedStage", stageTime);
                 }
             }
+            else if (items[0] == "MAGIC") {
+                for (int i = 1; i < items.Length; i++) {
+                    ExerciseDetector.availableMagics.Add((ExerciseType) System.Enum.Parse(typeof(ExerciseType), items[i]));
+                }
+            }
             else {
                 Element element = (Element)System.Enum.Parse(typeof(Element), items[0]);
                 int numberOfEnemies = int.Parse(items[1]);
