@@ -22,6 +22,7 @@ public class GameController : MonoBehaviour
         requireOk = true;
         stageNumber = 1;
         provider = FindObjectOfType<LeapProvider>();
+        InvokeRepeating("CheckEndStage", 10, 10);
     }
 
     // Update is called once per frame
@@ -89,5 +90,9 @@ public class GameController : MonoBehaviour
         Vector3 enemyPosition = copy.transform.position;
         enemyPosition.y = terrain.SampleHeight(enemyPosition) + terrain.transform.position.y + 1;
         copy.transform.position = enemyPosition;
+    }
+    
+    void CheckEndStage() {
+        requireOk = GameObject.FindGameObjectsWithTag("Enemy").Length == 0;
     }
 }
