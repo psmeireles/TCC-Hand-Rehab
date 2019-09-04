@@ -15,11 +15,13 @@ public class GameController : MonoBehaviour
     float time;
     int stageNumber;
     bool requireOk;
+    bool stageIsTimeBased;
     LeapProvider provider;
     // Start is called before the first frame update
     void Start()
     {
         requireOk = true;
+        stageIsTimeBased = false;
         stageNumber = 1;
         provider = FindObjectOfType<LeapProvider>();
         InvokeRepeating("CheckEndStage", 10, 10);
@@ -53,13 +55,13 @@ public class GameController : MonoBehaviour
                 }
                 if (extendedFingers == 1 && rightHand.Fingers[0].IsExtended) {
                     requireOk = false;
-                    StartGame(stageNumber);
+                    StartStage(stageNumber);
                 }
             }
         }
     }
 
-    void StartGame(int nextStage) {
+    void StartStage(int nextStage) {
         if(nextStage == 1) {
             time = 0;
         }
@@ -68,11 +70,22 @@ public class GameController : MonoBehaviour
         string line;
         while ((line = reader.ReadLine()) != null) {
             string[] items = line.Split(' ');
-            Element element = (Element)System.Enum.Parse(typeof(Element), items[0]);
-            int numberOfEnemies = int.Parse(items[1]);
-            float spawnTime = float.Parse(items[2]);
-            for (int i = 0; i < numberOfEnemies; i++) {
-                StartCoroutine(SpawnEnemy(element, spawnTime));
+            if (items[0] == "TIME") {
+                float stageTime = float.Parse(items[1]);
+                if (stageTime == -1) {
+                    stageIsTimeBased = false;
+                }
+                else {
+                    Invoke("endTimeBasedStage", stageTime);
+                }
+            }
+            else {
+                Element element = (Element)System.Enum.Parse(typeof(Element), items[0]);
+                int numberOfEnemies = int.Parse(items[1]);
+                float spawnTime = float.Parse(items[2]);
+                for (int i = 0; i < numberOfEnemies; i++) {
+                    StartCoroutine(SpawnEnemy(element, spawnTime));
+                }
             }
         }
 
@@ -93,6 +106,17 @@ public class GameController : MonoBehaviour
     }
     
     void CheckEndStage() {
-        requireOk = GameObject.FindGameObjectsWithTag("Enemy").Length == 0;
+        if (!stageIsTimeBased) {
+            requireOk = GameObject.FindGameObjectsWithTag("Enemy").Length == 0;
+        }
+    }
+
+    void endTimeBasedStage() {
+        var enemies = GameObject.FindGameObjectsWithTag("Enemy");
+        foreach(GameObject enemy in enemies) {
+            DestroyImmediate(enemy);
+        }
+
+        requireOk = true;
     }
 }
