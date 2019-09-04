@@ -7,17 +7,21 @@ public class Enemy : Character
 {
     public GameObject player;
     public GameObject projectile;
+
+    Canvas canvas;
     // Start is called before the first frame update
     protected override void Start()
     {
         base.Start();
         Invoke("Shoot", GenerateNextShotInterval());
+        canvas = this.hpBar.GetComponentInParent<Canvas>();
     }
 
     // Update is called once per frame
     protected override void Update()
     {
         base.Update();
+        canvas.transform.LookAt(player.transform);
     }
 
     void Shoot() {
