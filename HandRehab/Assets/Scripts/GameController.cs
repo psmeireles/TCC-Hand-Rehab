@@ -16,13 +16,17 @@ public class GameController : MonoBehaviour
     int stageNumber;
     bool requireOk;
     bool stageIsTimeBased;
+    bool infiniteStage;
+    int enemiesHordeSize;
     LeapProvider provider;
     // Start is called before the first frame update
     void Start()
     {
         requireOk = true;
         stageIsTimeBased = false;
+        infiniteStage = false;
         stageNumber = 1;
+        enemiesHordeSize = 5;
         provider = FindObjectOfType<LeapProvider>();
         InvokeRepeating("CheckEndStage", 10, 10);
     }
@@ -66,35 +70,41 @@ public class GameController : MonoBehaviour
             time = 0;
         }
 
-        StreamReader reader = File.OpenText($"Assets/Stages/stage{nextStage}.txt");
-        string line;
-        while ((line = reader.ReadLine()) != null) {
-            string[] items = line.Split(' ');
-            if (items[0] == "TIME") {
-                float stageTime = float.Parse(items[1]);
-                if (stageTime == -1) {
-                    stageIsTimeBased = false;
+        if (nextStage != 1) {
+            StreamReader reader = File.OpenText($"Assets/Stages/stage{nextStage}.txt");
+            string line;
+            while ((line = reader.ReadLine()) != null) {
+                string[] items = line.Split(' ');
+                if (items[0] == "TIME") {
+                    float stageTime = float.Parse(items[1]);
+                    if (stageTime == -1) {
+                        stageIsTimeBased = false;
+                    }
+                    else {
+                        Invoke("EndTimeBasedStage", stageTime);
+                    }
+                }
+                else if (items[0] == "MAGIC") {
+                    for (int i = 1; i < items.Length; i++) {
+                        ExerciseDetector.availableMagics.Add((ExerciseType) System.Enum.Parse(typeof(ExerciseType), items[i]));
+                    }
                 }
                 else {
-                    Invoke("endTimeBasedStage", stageTime);
+                    Element element = (Element)System.Enum.Parse(typeof(Element), items[0]);
+                    int numberOfEnemies = int.Parse(items[1]);
+                    float spawnTime = float.Parse(items[2]);
+                    for (int i = 0; i < numberOfEnemies; i++) {
+                        StartCoroutine(SpawnEnemy(element, spawnTime));
+                    }
                 }
             }
-            else if (items[0] == "MAGIC") {
-                for (int i = 1; i < items.Length; i++) {
-                    ExerciseDetector.availableMagics.Add((ExerciseType) System.Enum.Parse(typeof(ExerciseType), items[i]));
-                }
-            }
-            else {
-                Element element = (Element)System.Enum.Parse(typeof(Element), items[0]);
-                int numberOfEnemies = int.Parse(items[1]);
-                float spawnTime = float.Parse(items[2]);
-                for (int i = 0; i < numberOfEnemies; i++) {
-                    StartCoroutine(SpawnEnemy(element, spawnTime));
-                }
-            }
-        }
 
-        stageNumber = nextStage + 1;
+            stageNumber = nextStage + 1;
+        }
+        else {
+            infiniteStage = true;
+            StartInfiniteStage();
+        }
     }
 
     IEnumerator SpawnEnemy(Element element, float spawnTime) {
@@ -110,18 +120,42 @@ public class GameController : MonoBehaviour
         copy.transform.position = enemyPosition;
     }
     
+    void StartInfiniteStage() {
+        AddAllAvailableMagics();
+        for (int i = 0; i < enemiesHordeSize; i++) {
+            StartCoroutine(SpawnEnemy((Element)Random.Range(0, 4), 0));
+        }
+        enemiesHordeSize++;
+    }
+
     void CheckEndStage() {
         if (!stageIsTimeBased) {
-            requireOk = GameObject.FindGameObjectsWithTag("Enemy").Length == 0;
+            if (infiniteStage) {
+                StartInfiniteStage();
+            }
+            else {
+                requireOk = GameObject.FindGameObjectsWithTag("Enemy").Length == 0;
+                if (requireOk) {
+                    ExerciseDetector.availableMagics.Clear();
+                }
+            }
         }
     }
 
-    void endTimeBasedStage() {
+    void EndTimeBasedStage() {
         var enemies = GameObject.FindGameObjectsWithTag("Enemy");
         foreach(GameObject enemy in enemies) {
             DestroyImmediate(enemy);
         }
 
         requireOk = true;
+        ExerciseDetector.availableMagics.Clear();
+    }
+
+    void AddAllAvailableMagics() {
+        ExerciseDetector.availableMagics.Add(ExerciseType.FINGER_CURL);
+        ExerciseDetector.availableMagics.Add(ExerciseType.FIST);
+        ExerciseDetector.availableMagics.Add(ExerciseType.ROTATION);
+        ExerciseDetector.availableMagics.Add(ExerciseType.WRIST_CURL);
     }
 }
