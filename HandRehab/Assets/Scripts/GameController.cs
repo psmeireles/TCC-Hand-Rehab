@@ -5,13 +5,16 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class GameController : MonoBehaviour
 {
     public GameObject enemy;
     public GameObject player;
     public Terrain terrain;
-
+    public Text gameOver;
+    public Text elapsedTime;
+   
     float time;
     int stageNumber;
     bool requireOk;
@@ -34,7 +37,14 @@ public class GameController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        time += Time.deltaTime;
+        if (stageIsTimeBased) {
+            time -= Time.deltaTime;
+            elapsedTime.text = $"Survive for {(int)time} seconds";
+        }
+        else if (infiniteStage) {
+            time += Time.deltaTime;
+            elapsedTime.text = $"Elapsed Time: {(int)time} seconds";
+        }
         if (requireOk) {
             Hand rightHand = null;
             Hand leftHand = null;
@@ -66,11 +76,8 @@ public class GameController : MonoBehaviour
     }
 
     void StartStage(int nextStage) {
-        if(nextStage == 1) {
-            time = 0;
-        }
 
-        if (nextStage != 1) {
+        if (nextStage != 5) {
             StreamReader reader = File.OpenText($"Assets/Stages/stage{nextStage}.txt");
             string line;
             while ((line = reader.ReadLine()) != null) {
@@ -79,8 +86,11 @@ public class GameController : MonoBehaviour
                     float stageTime = float.Parse(items[1]);
                     if (stageTime == -1) {
                         stageIsTimeBased = false;
+                        elapsedTime.text = "Defeat all enemies";
                     }
                     else {
+                        stageIsTimeBased = true;
+                        time = stageTime;
                         Invoke("EndTimeBasedStage", stageTime);
                     }
                 }
@@ -103,6 +113,8 @@ public class GameController : MonoBehaviour
         }
         else {
             infiniteStage = true;
+            time = 0;
+            elapsedTime.gameObject.SetActive(true);
             StartInfiniteStage();
         }
     }
@@ -130,13 +142,14 @@ public class GameController : MonoBehaviour
 
     void CheckEndStage() {
         if (!stageIsTimeBased) {
-            if (infiniteStage) {
+            if (infiniteStage && GameObject.FindGameObjectsWithTag("Enemy").Length == 0) {
                 StartInfiniteStage();
             }
             else {
                 requireOk = GameObject.FindGameObjectsWithTag("Enemy").Length == 0;
                 if (requireOk) {
                     ExerciseDetector.availableMagics.Clear();
+                    elapsedTime.text = "Thumbs up when you're ready!";
                 }
             }
         }
@@ -148,7 +161,9 @@ public class GameController : MonoBehaviour
             DestroyImmediate(enemy);
         }
 
+        stageIsTimeBased = false;
         requireOk = true;
+        elapsedTime.text = "Thumbs up when you're ready!";
         ExerciseDetector.availableMagics.Clear();
     }
 
