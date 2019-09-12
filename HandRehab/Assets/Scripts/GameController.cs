@@ -73,6 +73,10 @@ public class GameController : MonoBehaviour
                 }
             }
         }
+
+        if (player.GetComponent<Character>().hp == 0) {
+            GameOver();
+        }
     }
 
     void StartStage(int nextStage) {
@@ -172,5 +176,17 @@ public class GameController : MonoBehaviour
         ExerciseDetector.availableMagics.Add(ExerciseType.FIST);
         ExerciseDetector.availableMagics.Add(ExerciseType.ROTATION);
         ExerciseDetector.availableMagics.Add(ExerciseType.WRIST_CURL);
+    }
+
+    void GameOver() {
+        gameOver.gameObject.SetActive(true);
+        elapsedTime.gameObject.SetActive(true);
+
+        var enemies = GameObject.FindGameObjectsWithTag("Enemy");
+        foreach (GameObject enemy in enemies) {
+            DestroyImmediate(enemy);
+        }
+
+        requireOk = false;
     }
 }
