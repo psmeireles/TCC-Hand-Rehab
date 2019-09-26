@@ -278,75 +278,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a198eb431e4f22642a28209bed69651f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!1001 &2111215531
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 8521286984719489759, guid: f675146ea5a333b44b88363af198b1fd,
-        type: 3}
-      propertyPath: m_Name
-      value: TutorialBoard
-      objectReference: {fileID: 0}
-    - target: {fileID: 6470183841834008362, guid: f675146ea5a333b44b88363af198b1fd,
-        type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -51.4
-      objectReference: {fileID: 0}
-    - target: {fileID: 6470183841834008362, guid: f675146ea5a333b44b88363af198b1fd,
-        type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6470183841834008362, guid: f675146ea5a333b44b88363af198b1fd,
-        type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 6470183841834008362, guid: f675146ea5a333b44b88363af198b1fd,
-        type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6470183841834008362, guid: f675146ea5a333b44b88363af198b1fd,
-        type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6470183841834008362, guid: f675146ea5a333b44b88363af198b1fd,
-        type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6470183841834008362, guid: f675146ea5a333b44b88363af198b1fd,
-        type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 6470183841834008362, guid: f675146ea5a333b44b88363af198b1fd,
-        type: 3}
-      propertyPath: m_RootOrder
-      value: 4
-      objectReference: {fileID: 0}
-    - target: {fileID: 6470183841834008362, guid: f675146ea5a333b44b88363af198b1fd,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6470183841834008362, guid: f675146ea5a333b44b88363af198b1fd,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6470183841834008362, guid: f675146ea5a333b44b88363af198b1fd,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: f675146ea5a333b44b88363af198b1fd, type: 3}
 --- !u!1001 &104411416601832830
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -416,6 +347,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1406703053509402797, guid: 2c63603a61daafa4ba65bfc2b841eb29,
         type: 3}
+      propertyPath: tutorialBoards.Array.size
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 1406703053509402797, guid: 2c63603a61daafa4ba65bfc2b841eb29,
+        type: 3}
       propertyPath: elapsedTime
       value: 
       objectReference: {fileID: 1843592041}
@@ -429,6 +365,30 @@ PrefabInstance:
       propertyPath: player
       value: 
       objectReference: {fileID: 189574047}
+    - target: {fileID: 1406703053509402797, guid: 2c63603a61daafa4ba65bfc2b841eb29,
+        type: 3}
+      propertyPath: tutorialBoards.Array.data[0]
+      value: 
+      objectReference: {fileID: 8521286984719489759, guid: f675146ea5a333b44b88363af198b1fd,
+        type: 3}
+    - target: {fileID: 1406703053509402797, guid: 2c63603a61daafa4ba65bfc2b841eb29,
+        type: 3}
+      propertyPath: tutorialBoards.Array.data[1]
+      value: 
+      objectReference: {fileID: 6988259591227752057, guid: 5251a5726e8a2ea4d86752f338d77a35,
+        type: 3}
+    - target: {fileID: 1406703053509402797, guid: 2c63603a61daafa4ba65bfc2b841eb29,
+        type: 3}
+      propertyPath: tutorialBoards.Array.data[2]
+      value: 
+      objectReference: {fileID: 6013562283052668895, guid: 1c9d08e6f7f2cac42b2d7802da8d2bb0,
+        type: 3}
+    - target: {fileID: 1406703053509402797, guid: 2c63603a61daafa4ba65bfc2b841eb29,
+        type: 3}
+      propertyPath: tutorialBoards.Array.data[3]
+      value: 
+      objectReference: {fileID: 7105758116627712105, guid: 2c0ae10f89b935a40b3d14ee7b3d295d,
+        type: 3}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 2c63603a61daafa4ba65bfc2b841eb29, type: 3}
 --- !u!1001 &2253396290706798443

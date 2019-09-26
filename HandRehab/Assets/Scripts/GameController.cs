@@ -14,6 +14,7 @@ public class GameController : MonoBehaviour
     public Terrain terrain;
     public Text gameOver;
     public Text elapsedTime;
+    public List<GameObject> tutorialBoards;
    
     float time;
     int stageNumber;
@@ -22,6 +23,7 @@ public class GameController : MonoBehaviour
     bool infiniteStage;
     int enemiesHordeSize;
     LeapProvider provider;
+    List<GameObject> boards;
     // Start is called before the first frame update
     void Start()
     {
@@ -32,6 +34,12 @@ public class GameController : MonoBehaviour
         enemiesHordeSize = 5;
         provider = FindObjectOfType<LeapProvider>();
         InvokeRepeating("CheckEndStage", 10, 10);
+        boards = new List<GameObject>();
+        foreach (var board in tutorialBoards) {
+            board.SetActive(false);
+            boards.Add(GameObject.Instantiate(board));
+        }
+        boards[0].SetActive(true);
     }
 
     // Update is called once per frame
@@ -69,6 +77,8 @@ public class GameController : MonoBehaviour
                 }
                 if (extendedFingers == 1 && rightHand.Fingers[0].IsExtended) {
                     requireOk = false;
+                    ClearActiveTutorialBoard();
+                    ExerciseDetector.availableMagics.Clear();
                     StartStage(stageNumber);
                 }
             }
@@ -154,6 +164,9 @@ public class GameController : MonoBehaviour
                 if (requireOk) {
                     ExerciseDetector.availableMagics.Clear();
                     elapsedTime.text = "Thumbs up when you're ready!";
+                    ClearActiveTutorialBoard();
+                    boards[stageNumber - 1].SetActive(true);
+                    ExerciseDetector.availableMagics.Add((ExerciseType)stageNumber - 1);
                 }
             }
         }
@@ -176,6 +189,12 @@ public class GameController : MonoBehaviour
         ExerciseDetector.availableMagics.Add(ExerciseType.FIST);
         ExerciseDetector.availableMagics.Add(ExerciseType.ROTATION);
         ExerciseDetector.availableMagics.Add(ExerciseType.WRIST_CURL);
+    }
+
+    void ClearActiveTutorialBoard() {
+        foreach (var board in boards) {
+            board.SetActive(false);
+        }
     }
 
     void GameOver() {

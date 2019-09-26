@@ -5,8 +5,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public enum ExerciseType {
-    FIST,
     ROTATION,
+    FIST,
     WRIST_CURL,
     FINGER_CURL,
     UNDEFINED
