@@ -53,10 +53,6 @@ public class GameController : MonoBehaviour
             time -= Time.deltaTime;
             elapsedTime.text = $"Survive for {(int)time} seconds";
         }
-        else if (infiniteStage) {
-            time += Time.deltaTime;
-            elapsedTime.text = $"Elapsed Time: {(int)time} seconds";
-        }
         if (requireOk) {
             Hand rightHand = null;
             Hand leftHand = null;
@@ -95,7 +91,7 @@ public class GameController : MonoBehaviour
 
     void StartStage(int nextStage) {
 
-        if (nextStage != 5) {
+        if (nextStage < 5) {
             StreamReader reader = File.OpenText($"Assets/Stages/stage{nextStage}.txt");
             string line;
             while ((line = reader.ReadLine()) != null) {
@@ -127,14 +123,16 @@ public class GameController : MonoBehaviour
                 }
             }
 
-            stageNumber = nextStage + 1;
         }
         else {
             infiniteStage = true;
             time = 0;
             elapsedTime.gameObject.SetActive(true);
+            elapsedTime.text = $"Round {stageNumber}";
             StartInfiniteStage();
         }
+
+        stageNumber = nextStage + 1;
     }
 
     IEnumerator SpawnEnemy(Element element, float spawnTime) {
@@ -161,7 +159,9 @@ public class GameController : MonoBehaviour
     void CheckEndStage() {
         if (!stageIsTimeBased) {
             if (infiniteStage && GameObject.FindGameObjectsWithTag("Enemy").Length == 0) {
-                StartInfiniteStage();
+                requireOk = true;
+                ExerciseDetector.availableMagics.Clear();
+                elapsedTime.text = "Thumbs up when you're ready!";
             }
             else {
                 requireOk = GameObject.FindGameObjectsWithTag("Enemy").Length == 0;
