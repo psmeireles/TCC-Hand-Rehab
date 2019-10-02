@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Video;
 
 public class GameController : MonoBehaviour
 {
@@ -14,7 +15,8 @@ public class GameController : MonoBehaviour
     public Terrain terrain;
     public Text gameOver;
     public Text elapsedTime;
-    public List<GameObject> tutorialBoards;
+    public List<VideoClip> tutorialVideos;
+    public GameObject tv;
    
     float time;
     int stageNumber;
@@ -23,7 +25,9 @@ public class GameController : MonoBehaviour
     bool infiniteStage;
     int enemiesHordeSize;
     LeapProvider provider;
-    List<GameObject> boards;
+    VideoClip currentVideo;
+    VideoPlayer videoPlayer;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -34,12 +38,12 @@ public class GameController : MonoBehaviour
         enemiesHordeSize = 5;
         provider = FindObjectOfType<LeapProvider>();
         InvokeRepeating("CheckEndStage", 10, 10);
-        boards = new List<GameObject>();
-        foreach (var board in tutorialBoards) {
-            board.SetActive(false);
-            boards.Add(GameObject.Instantiate(board));
+        if(tutorialVideos.Count > 0)
+        {
+            currentVideo = tutorialVideos[0];
         }
-        boards[0].SetActive(true);
+        videoPlayer = tv.GetComponentInChildren<VideoPlayer>();
+        videoPlayer.clip = currentVideo;
     }
 
     // Update is called once per frame
@@ -77,7 +81,7 @@ public class GameController : MonoBehaviour
                 }
                 if (extendedFingers == 1 && rightHand.Fingers[0].IsExtended) {
                     requireOk = false;
-                    ClearActiveTutorialBoard();
+                    tv.SetActive(false);
                     ExerciseDetector.availableMagics.Clear();
                     StartStage(stageNumber);
                 }
@@ -164,8 +168,7 @@ public class GameController : MonoBehaviour
                 if (requireOk) {
                     ExerciseDetector.availableMagics.Clear();
                     elapsedTime.text = "Thumbs up when you're ready!";
-                    ClearActiveTutorialBoard();
-                    boards[stageNumber - 1].SetActive(true);
+                    NextVideo();
                     ExerciseDetector.availableMagics.Add((ExerciseType)stageNumber - 1);
                 }
             }
@@ -180,6 +183,8 @@ public class GameController : MonoBehaviour
 
         stageIsTimeBased = false;
         requireOk = true;
+        NextVideo();
+        
         elapsedTime.text = "Thumbs up when you're ready!";
         ExerciseDetector.availableMagics.Clear();
     }
@@ -191,9 +196,13 @@ public class GameController : MonoBehaviour
         ExerciseDetector.availableMagics.Add(ExerciseType.WRIST_CURL);
     }
 
-    void ClearActiveTutorialBoard() {
-        foreach (var board in boards) {
-            board.SetActive(false);
+    void NextVideo()
+    {
+        if (stageNumber - 1 < tutorialVideos.Count)
+        {
+            tv.SetActive(true);
+            currentVideo = tutorialVideos[stageNumber - 1];
+            videoPlayer.clip = currentVideo;
         }
     }
 
