@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -7,14 +8,23 @@ public class Enemy : Character
 {
     public GameObject player;
     public GameObject projectile;
+    Slider attackBar;
+
+    float timeToNextShot;
 
     Canvas canvas;
     // Start is called before the first frame update
     protected override void Start()
     {
         base.Start();
-        Invoke("Shoot", GenerateNextShotInterval());
+        timeToNextShot = GenerateNextShotInterval();
+        Invoke("Shoot", timeToNextShot);
         canvas = this.hpBar.GetComponentInParent<Canvas>();
+        attackBar = GetComponentsInChildren<Slider>().Where(c => c.name == "Attack Bar").ToArray()[0];
+        if(attackBar != null) {
+            attackBar.maxValue = timeToNextShot;
+            attackBar.value = 0;
+        }
     }
 
     // Update is called once per frame
@@ -22,6 +32,9 @@ public class Enemy : Character
     {
         base.Update();
         canvas.transform.LookAt(player.transform);
+        if (attackBar != null && timeToNextShot != 0) {
+            attackBar.value += Time.deltaTime;
+        }
     }
 
     void Shoot() {
@@ -33,7 +46,12 @@ public class Enemy : Character
         bullet.transform.position = this.transform.position + this.transform.forward*2;
         rb.AddForce((player.transform.position - this.transform.position) * 150);
         GameObject.Destroy(bullet, 5);
-        Invoke("Shoot", GenerateNextShotInterval());
+        timeToNextShot = GenerateNextShotInterval();
+        if (attackBar != null) {
+            attackBar.maxValue = timeToNextShot;
+            attackBar.value = 0;
+        }
+        Invoke("Shoot", timeToNextShot);
     }
 
     float GenerateNextShotInterval() {
