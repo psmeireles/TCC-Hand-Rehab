@@ -55,6 +55,6 @@ public class Enemy : Character
     }
 
     float GenerateNextShotInterval() {
-        return Random.Range(3, 10);
+        return Random.Range(5, 20);
     }
 }
