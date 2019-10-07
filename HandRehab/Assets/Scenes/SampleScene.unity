@@ -137,8 +137,8 @@ BoxCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 0.63892365, y: 1.5324445, z: 1}
-  m_Center: {x: 0.016746521, y: -0.35967612, z: 0}
+  m_Size: {x: 0.63892365, y: 1.2138929, z: 1}
+  m_Center: {x: 0.016746521, y: -0.5189519, z: 0}
 --- !u!1001 &578971516
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -646,6 +646,16 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
+    - target: {fileID: 5765682714852662861, guid: 2c5b654122aa1fa4b816efd87e51e97c,
+        type: 3}
+      propertyPath: m_Text
+      value: "\xA1Pulgares arriba cuando est\xE9s listo!"
+      objectReference: {fileID: 0}
+    - target: {fileID: 2252197595667620991, guid: 2c5b654122aa1fa4b816efd87e51e97c,
+        type: 3}
+      propertyPath: m_TagString
+      value: MainCamera
+      objectReference: {fileID: 0}
     - target: {fileID: 2253396290854345930, guid: 2c5b654122aa1fa4b816efd87e51e97c,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -773,11 +783,6 @@ PrefabInstance:
       propertyPath: m_Pivot.y
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 2252197595667620991, guid: 2c5b654122aa1fa4b816efd87e51e97c,
-        type: 3}
-      propertyPath: m_TagString
-      value: MainCamera
-      objectReference: {fileID: 0}
     - target: {fileID: 6324433307370540102, guid: 2c5b654122aa1fa4b816efd87e51e97c,
         type: 3}
       propertyPath: m_AnchorMax.x
@@ -808,10 +813,10 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
-    - target: {fileID: 5765682714852662861, guid: 2c5b654122aa1fa4b816efd87e51e97c,
+    - target: {fileID: 3864284381373670498, guid: 2c5b654122aa1fa4b816efd87e51e97c,
         type: 3}
-      propertyPath: m_Text
-      value: Thumbs up when you're ready!
+      propertyPath: m_CullTransparentMesh
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 2c5b654122aa1fa4b816efd87e51e97c, type: 3}
