@@ -51,7 +51,7 @@ public class GameController : MonoBehaviour
     {
         if (stageIsTimeBased) {
             time -= Time.deltaTime;
-            elapsedTime.text = $"Survive for {(int)time} seconds";
+            elapsedTime.text = $"Sobrevive por {(int)time} segundos";
         }
         if (requireOk) {
             Hand rightHand = null;
@@ -100,7 +100,7 @@ public class GameController : MonoBehaviour
                     float stageTime = float.Parse(items[1]);
                     if (stageTime == -1) {
                         stageIsTimeBased = false;
-                        elapsedTime.text = "Defeat all enemies";
+                        elapsedTime.text = "Derrota a todos los enemigos";
                     }
                     else {
                         stageIsTimeBased = true;
@@ -128,7 +128,7 @@ public class GameController : MonoBehaviour
             infiniteStage = true;
             time = 0;
             elapsedTime.gameObject.SetActive(true);
-            elapsedTime.text = $"Round {stageNumber}";
+            elapsedTime.text = $"Ronda {stageNumber}";
             StartInfiniteStage();
         }
 
@@ -161,13 +161,13 @@ public class GameController : MonoBehaviour
             if (infiniteStage && GameObject.FindGameObjectsWithTag("Enemy").Length == 0) {
                 requireOk = true;
                 ExerciseDetector.availableMagics.Clear();
-                elapsedTime.text = "Thumbs up when you're ready!";
+                elapsedTime.text = "¡Pulgares arriba cuando estés listo!";
             }
             else {
                 requireOk = GameObject.FindGameObjectsWithTag("Enemy").Length == 0;
                 if (requireOk) {
                     ExerciseDetector.availableMagics.Clear();
-                    elapsedTime.text = "Thumbs up when you're ready!";
+                    elapsedTime.text = "¡Pulgares arriba cuando estés listo!";
                     NextVideo();
                     ExerciseDetector.availableMagics.Add((ExerciseType)stageNumber - 1);
                 }
@@ -185,7 +185,7 @@ public class GameController : MonoBehaviour
         requireOk = true;
         NextVideo();
         
-        elapsedTime.text = "Thumbs up when you're ready!";
+        elapsedTime.text = "¡Pulgares arriba cuando estés listo!";
         ExerciseDetector.availableMagics.Clear();
     }
 
