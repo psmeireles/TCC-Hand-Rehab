@@ -120,6 +120,19 @@ public class ExerciseDetector : MonoBehaviour {
             }
         }
 
+        // Cancel magic
+        if(rightHand != null && currentExercise!= null && currentExercise.hasStarted && IsHandClosed(rightHand) && blast == null) {
+            currentExercise.FinishExercise();
+            aim?.SetActive(false);
+            shield?.SetActive(false);
+            if(fingerCurlIndicator != null)
+                DestroyImmediate(fingerCurlIndicator);
+            var magics = GameObject.FindGameObjectsWithTag("Magic");
+            foreach(var magic in magics) {
+                DestroyImmediate(magic);
+            }
+        }
+
     }
 
     bool IsHandClosed(Hand hand) {
