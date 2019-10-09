@@ -23,6 +23,7 @@ public class GameController : MonoBehaviour
     bool requireOk;
     bool stageIsTimeBased;
     bool infiniteStage;
+    bool canCheckEndStage;
     int enemiesHordeSize;
     LeapProvider provider;
     VideoClip currentVideo;
@@ -37,7 +38,6 @@ public class GameController : MonoBehaviour
         stageNumber = 1;
         enemiesHordeSize = 5;
         provider = FindObjectOfType<LeapProvider>();
-        InvokeRepeating("CheckEndStage", 10, 10);
         if(tutorialVideos.Count > 0)
         {
             currentVideo = tutorialVideos[0];
@@ -49,6 +49,9 @@ public class GameController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if(canCheckEndStage)
+            CheckEndStage();
+
         if (stageIsTimeBased) {
             time -= Time.deltaTime;
             elapsedTime.text = $"Sobrevive por {(int)time} segundos";
@@ -90,7 +93,7 @@ public class GameController : MonoBehaviour
     }
 
     void StartStage(int nextStage) {
-
+        float lastEnemyTime = 0.1f;
         if (nextStage < 5) {
             StreamReader reader = File.OpenText($"Assets/Stages/stage{nextStage}.txt");
             string line;
@@ -120,9 +123,11 @@ public class GameController : MonoBehaviour
                     for (int i = 0; i < numberOfEnemies; i++) {
                         StartCoroutine(SpawnEnemy(element, spawnTime));
                     }
+                    lastEnemyTime = spawnTime;
                 }
             }
 
+            if(!stageIsTimeBased) Invoke("ToggleCheckEndOfStage", lastEnemyTime+5);
         }
         else {
             infiniteStage = true;
@@ -130,6 +135,7 @@ public class GameController : MonoBehaviour
             elapsedTime.gameObject.SetActive(true);
             elapsedTime.text = $"Ronda {stageNumber}";
             StartInfiniteStage();
+            Invoke("ToggleCheckEndOfStage", 5);
         }
 
         stageNumber = nextStage + 1;
@@ -172,6 +178,7 @@ public class GameController : MonoBehaviour
                     ExerciseDetector.availableMagics.Add((ExerciseType)stageNumber - 1);
                 }
             }
+            canCheckEndStage = !requireOk;
         }
     }
 
@@ -207,14 +214,18 @@ public class GameController : MonoBehaviour
     }
 
     void GameOver() {
-        gameOver.gameObject.SetActive(true);
-        elapsedTime.gameObject.SetActive(true);
+        //gameOver.gameObject.SetActive(true);
+        //elapsedTime.gameObject.SetActive(true);
 
-        var enemies = GameObject.FindGameObjectsWithTag("Enemy");
-        foreach (GameObject enemy in enemies) {
-            DestroyImmediate(enemy);
-        }
+        //var enemies = GameObject.FindGameObjectsWithTag("Enemy");
+        //foreach (GameObject enemy in enemies) {
+        //    DestroyImmediate(enemy);
+        //}
 
-        requireOk = false;
+        //requireOk = false;
+    }
+
+    void ToggleCheckEndOfStage() {
+        canCheckEndStage = true;
     }
 }
