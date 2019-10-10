@@ -231,6 +231,8 @@ public class ExerciseDetector : MonoBehaviour {
         }
         if (currentExercise.hasStarted && Mathf.Abs(hand.PalmNormal.Roll) < ROTATION_LOWER_TRESHHOLD && IsHandOpened(hand) && IsHandPointingForward(hand)) {
             currentExercise.FinishExercise();
+            var audios = shield.GetComponents<AudioSource>();
+            AudioSource.PlayClipAtPoint(audios[audios.Length - 1].clip, shield.transform.position);
             shield.SetActive(false);
         }
     }
