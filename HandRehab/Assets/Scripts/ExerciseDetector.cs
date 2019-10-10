@@ -122,17 +122,21 @@ public class ExerciseDetector : MonoBehaviour {
 
         // Cancel magic
         if(rightHand != null && currentExercise!= null && currentExercise.hasStarted && IsHandClosed(rightHand) && blast == null) {
-            currentExercise.FinishExercise();
-            aim?.SetActive(false);
-            shield?.SetActive(false);
-            if(fingerCurlIndicator != null)
-                DestroyImmediate(fingerCurlIndicator);
-            var magics = GameObject.FindGameObjectsWithTag("Magic");
-            foreach(var magic in magics) {
-                DestroyImmediate(magic);
-            }
+            CancelMagic();
         }
 
+    }
+
+    void CancelMagic() {
+        currentExercise.FinishExercise();
+        aim?.SetActive(false);
+        shield?.SetActive(false);
+        if (fingerCurlIndicator != null)
+            DestroyImmediate(fingerCurlIndicator);
+        var magics = GameObject.FindGameObjectsWithTag("Magic");
+        foreach (var magic in magics) {
+            DestroyImmediate(magic);
+        }
     }
 
     bool IsHandClosed(Hand hand) {
@@ -183,7 +187,7 @@ public class ExerciseDetector : MonoBehaviour {
                 }
             }
         }
-        else if (currentExercise.hasStarted && IsHandOpened(hand) && IsHandPointingForward(hand)){
+        else if (currentExercise.hasStarted && IsHandOpened(hand) && IsHandPointingForward(hand) && sphere?.transform.localScale.x >= 0.08){
             currentExercise.FinishExercise();
             if (sphere != null) {
                 sphere.GetComponent<ChainLightning>().LightItUp(hand);
@@ -243,7 +247,7 @@ public class ExerciseDetector : MonoBehaviour {
             currentExercise.StartExercise(ExerciseType.WRIST_CURL);
         }
 
-        if (currentExercise.hasStarted && angle > WRIST_CURL_UPPER_TRESHHOLD && !IsHandPointingForward(hand) && hand.GrabStrength > 0.5) {
+        if (currentExercise.hasStarted && angle > WRIST_CURL_UPPER_TRESHHOLD && !IsHandPointingForward(hand) && hand.GrabStrength > 0.5 && aim?.transform.localScale.x >= 3) {
             currentExercise.FinishExercise();
             aim.SetActive(false);
             SummonBoulder(aim);
