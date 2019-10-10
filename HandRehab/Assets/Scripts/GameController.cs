@@ -214,15 +214,15 @@ public class GameController : MonoBehaviour
     }
 
     void GameOver() {
-        //gameOver.gameObject.SetActive(true);
-        //elapsedTime.gameObject.SetActive(true);
+        gameOver.gameObject.SetActive(true);
+        elapsedTime.gameObject.SetActive(true);
 
-        //var enemies = GameObject.FindGameObjectsWithTag("Enemy");
-        //foreach (GameObject enemy in enemies) {
-        //    DestroyImmediate(enemy);
-        //}
+        var enemies = GameObject.FindGameObjectsWithTag("Enemy");
+        foreach (GameObject enemy in enemies) {
+            DestroyImmediate(enemy);
+        }
 
-        //requireOk = false;
+        requireOk = false;
     }
 
     void ToggleCheckEndOfStage() {
