@@ -29,7 +29,6 @@ public class Attack : MonoBehaviour
         if (this.tag.Equals("Boulder")) {
             var audio = GetComponent<AudioSource>();
             if (!audio.isPlaying) {
-                audio.volume = 150;
                 audio.Play();
             }
         }
