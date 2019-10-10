@@ -26,6 +26,13 @@ public class Attack : MonoBehaviour
             Character character = obj.GetComponent<Character>();
             character.Hit(damage, element);
         }
+        if (this.tag.Equals("Boulder")) {
+            var audio = GetComponent<AudioSource>();
+            if (!audio.isPlaying) {
+                audio.volume = 150;
+                audio.Play();
+            }
+        }
         Destroy(this.gameObject, 3);
     }
 
