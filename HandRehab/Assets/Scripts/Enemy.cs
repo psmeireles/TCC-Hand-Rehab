@@ -8,9 +8,10 @@ public class Enemy : Character
 {
     public GameObject player;
     public GameObject projectile;
-    Slider attackBar;
 
+    Slider attackBar;
     float timeToNextShot;
+    AudioSource shootSound;
 
     Canvas canvas;
     // Start is called before the first frame update
@@ -25,6 +26,7 @@ public class Enemy : Character
             attackBar.maxValue = timeToNextShot;
             attackBar.value = 0;
         }
+        shootSound = GetComponent<AudioSource>();
     }
 
     // Update is called once per frame
@@ -45,7 +47,11 @@ public class Enemy : Character
         Rigidbody rb = bullet.GetComponent<Rigidbody>();
         bullet.transform.position = this.transform.position + this.transform.forward*2;
         rb.AddForce((player.transform.position - this.transform.position) * 150);
+
+        shootSound.Play();
+
         GameObject.Destroy(bullet, 5);
+
         timeToNextShot = GenerateNextShotInterval();
         if (attackBar != null) {
             attackBar.maxValue = timeToNextShot;

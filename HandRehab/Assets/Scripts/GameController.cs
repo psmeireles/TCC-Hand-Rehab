@@ -24,6 +24,7 @@ public class GameController : MonoBehaviour
     bool stageIsTimeBased;
     bool infiniteStage;
     bool canCheckEndStage;
+    bool gameIsOver;
     int enemiesHordeSize;
     LeapProvider provider;
     VideoClip currentVideo;
@@ -44,11 +45,14 @@ public class GameController : MonoBehaviour
         }
         videoPlayer = tv.GetComponentInChildren<VideoPlayer>();
         videoPlayer.clip = currentVideo;
+        ExerciseDetector.availableMagics.Add(ExerciseType.ROTATION);
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (gameIsOver) return;
+
         if(canCheckEndStage)
             CheckEndStage();
 
@@ -163,6 +167,7 @@ public class GameController : MonoBehaviour
     }
 
     void CheckEndStage() {
+        if (gameIsOver) return;
         if (!stageIsTimeBased) {
             if (infiniteStage && GameObject.FindGameObjectsWithTag("Enemy").Length == 0) {
                 requireOk = true;
@@ -183,6 +188,7 @@ public class GameController : MonoBehaviour
     }
 
     void EndTimeBasedStage() {
+        if (gameIsOver) return;
         var enemies = GameObject.FindGameObjectsWithTag("Enemy");
         foreach(GameObject enemy in enemies) {
             DestroyImmediate(enemy);
@@ -194,6 +200,7 @@ public class GameController : MonoBehaviour
         
         elapsedTime.text = "¡Pulgares arriba cuando estés listo!";
         ExerciseDetector.availableMagics.Clear();
+        ExerciseDetector.availableMagics.Add((ExerciseType)stageNumber - 1);
     }
 
     void AddAllAvailableMagics() {
@@ -223,6 +230,7 @@ public class GameController : MonoBehaviour
         }
 
         requireOk = false;
+        gameIsOver = true;
     }
 
     void ToggleCheckEndOfStage() {
