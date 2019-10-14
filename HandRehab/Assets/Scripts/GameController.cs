@@ -17,6 +17,7 @@ public class GameController : MonoBehaviour
     public Text elapsedTime;
     public List<VideoClip> tutorialVideos;
     public GameObject tv;
+    public List<TextAsset> stages;
    
     float time;
     int stageNumber;
@@ -36,7 +37,7 @@ public class GameController : MonoBehaviour
         requireOk = true;
         stageIsTimeBased = false;
         infiniteStage = false;
-        stageNumber = 1;
+        stageNumber = 0;
         enemiesHordeSize = 5;
         provider = FindObjectOfType<LeapProvider>();
         if(tutorialVideos.Count > 0)
@@ -45,12 +46,15 @@ public class GameController : MonoBehaviour
         }
         videoPlayer = tv.GetComponentInChildren<VideoPlayer>();
         videoPlayer.clip = currentVideo;
-        ExerciseDetector.availableMagics.Add(ExerciseType.ROTATION);
     }
 
     // Update is called once per frame
     void Update()
     {
+        if(stageNumber == 0 && ExerciseDetector.availableMagics != null && ExerciseDetector.availableMagics.Count == 0) {
+            ExerciseDetector.availableMagics.Add(ExerciseType.ROTATION);
+        }
+
         if (gameIsOver) return;
 
         if(canCheckEndStage)
@@ -98,10 +102,9 @@ public class GameController : MonoBehaviour
 
     void StartStage(int nextStage) {
         float lastEnemyTime = 0.1f;
-        if (nextStage < 5) {
-            StreamReader reader = File.OpenText($"Assets/Stages/stage{nextStage}.txt");
-            string line;
-            while ((line = reader.ReadLine()) != null) {
+        if (nextStage < stages.Count) {
+            string[] lines = stages[nextStage].text.Split('\n');
+            foreach (string line in lines) {
                 string[] items = line.Split(' ');
                 if (items[0] == "TIME") {
                     float stageTime = float.Parse(items[1]);
@@ -137,7 +140,7 @@ public class GameController : MonoBehaviour
             infiniteStage = true;
             time = 0;
             elapsedTime.gameObject.SetActive(true);
-            elapsedTime.text = $"Ronda {stageNumber}";
+            elapsedTime.text = $"Ronda {stageNumber + 1}";
             StartInfiniteStage();
             Invoke("ToggleCheckEndOfStage", 5);
         }
@@ -180,7 +183,7 @@ public class GameController : MonoBehaviour
                     ExerciseDetector.availableMagics.Clear();
                     elapsedTime.text = "¡Pulgares arriba cuando estés listo!";
                     NextVideo();
-                    ExerciseDetector.availableMagics.Add((ExerciseType)stageNumber - 1);
+                    ExerciseDetector.availableMagics.Add((ExerciseType)stageNumber);
                 }
             }
             canCheckEndStage = !requireOk;
@@ -200,7 +203,7 @@ public class GameController : MonoBehaviour
         
         elapsedTime.text = "¡Pulgares arriba cuando estés listo!";
         ExerciseDetector.availableMagics.Clear();
-        ExerciseDetector.availableMagics.Add((ExerciseType)stageNumber - 1);
+        ExerciseDetector.availableMagics.Add((ExerciseType)stageNumber);
     }
 
     void AddAllAvailableMagics() {
@@ -212,10 +215,10 @@ public class GameController : MonoBehaviour
 
     void NextVideo()
     {
-        if (stageNumber - 1 < tutorialVideos.Count)
+        if (stageNumber < tutorialVideos.Count)
         {
             tv.SetActive(true);
-            currentVideo = tutorialVideos[stageNumber - 1];
+            currentVideo = tutorialVideos[stageNumber];
             videoPlayer.clip = currentVideo;
         }
     }
