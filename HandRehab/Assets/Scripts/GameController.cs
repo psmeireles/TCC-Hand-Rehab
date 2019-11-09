@@ -11,8 +11,6 @@ using UnityEngine.Video;
 
 public class GameController : MonoBehaviour
 {
-    public List<VideoClip> tutorialVideos;
-    public GameObject tv;
     public List<TextAsset> stages;
    
     float time;
@@ -33,6 +31,9 @@ public class GameController : MonoBehaviour
     [SerializeField]
     private EnemyCreator _enemyCreator;
 
+    [SerializeField]
+    private TutorialManager _tutorialManager;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -42,12 +43,6 @@ public class GameController : MonoBehaviour
         stageNumber = 0;
         enemiesHordeSize = 5;
         provider = FindObjectOfType<LeapProvider>();
-        if(tutorialVideos.Count > 0)
-        {
-            currentVideo = tutorialVideos[0];
-        }
-        videoPlayer = tv.GetComponentInChildren<VideoPlayer>();
-        videoPlayer.clip = currentVideo;
 
         _uiManager = GameObject.Find("PlayerCanvas")?.GetComponent<UIManager>();
         if (_uiManager == null)
@@ -56,6 +51,10 @@ public class GameController : MonoBehaviour
         _enemyCreator = GameObject.Find("EnemyCreator")?.GetComponent<EnemyCreator>();
         if (_enemyCreator == null)
             Debug.LogError("EnemyCreator is null");
+
+        _tutorialManager = GameObject.Find("FlatScreenTV")?.GetComponent<TutorialManager>();
+        if (_enemyCreator == null)
+            Debug.LogError("TutorialManager is null");
     }
 
     // Update is called once per frame
@@ -101,7 +100,7 @@ public class GameController : MonoBehaviour
                     else
                     {
                         requireOk = false;
-                        tv.SetActive(false);
+                        _tutorialManager.DisableTV();
                         ExerciseDetector.availableMagics.Clear();
                         StartStage(stageNumber);
                     }
@@ -175,7 +174,7 @@ public class GameController : MonoBehaviour
             else {
                 ExerciseDetector.availableMagics.Clear();
                 _uiManager.RequireOK();
-                NextVideo();
+                _tutorialManager.NextVideo();
                 ExerciseDetector.availableMagics.Add((ExerciseType)stageNumber);
             }
             canCheckEndStage = !requireOk;
@@ -188,7 +187,7 @@ public class GameController : MonoBehaviour
 
         stageIsTimeBased = false;
         requireOk = true;
-        NextVideo();
+        _tutorialManager.NextVideo();
 
         _uiManager.RequireOK();
         ExerciseDetector.availableMagics.Clear();
@@ -200,16 +199,6 @@ public class GameController : MonoBehaviour
         ExerciseDetector.availableMagics.Add(ExerciseType.FIST);
         ExerciseDetector.availableMagics.Add(ExerciseType.ROTATION);
         ExerciseDetector.availableMagics.Add(ExerciseType.WRIST_CURL);
-    }
-
-    void NextVideo()
-    {
-        if (stageNumber < tutorialVideos.Count)
-        {
-            tv.SetActive(true);
-            currentVideo = tutorialVideos[stageNumber];
-            videoPlayer.clip = currentVideo;
-        }
     }
 
     public void GameOver() {
