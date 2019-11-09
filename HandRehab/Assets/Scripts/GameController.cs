@@ -35,6 +35,9 @@ public class GameController : MonoBehaviour
     [SerializeField]
     private UIManager _uiManager;
 
+    [SerializeField]
+    private EnemyCreator _enemyCreator;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -52,9 +55,12 @@ public class GameController : MonoBehaviour
         videoPlayer.clip = currentVideo;
 
         _uiManager = GameObject.Find("PlayerCanvas")?.GetComponent<UIManager>();
-
         if (_uiManager == null)
             Debug.LogError("UIManager is null");
+
+        _enemyCreator = GameObject.Find("EnemyCreator")?.GetComponent<EnemyCreator>();
+        if (_enemyCreator == null)
+            Debug.LogError("EnemyCreator is null");
     }
 
     // Update is called once per frame
@@ -140,9 +146,7 @@ public class GameController : MonoBehaviour
                     Element element = (Element)System.Enum.Parse(typeof(Element), items[0]);
                     int numberOfEnemies = int.Parse(items[1]);
                     float spawnTime = float.Parse(items[2]);
-                    for (int i = 0; i < numberOfEnemies; i++) {
-                        StartCoroutine(SpawnEnemy(element, spawnTime));
-                    }
+                    _enemyCreator.SpawnEnemies(element, spawnTime, numberOfEnemies);
                     lastEnemyTime = spawnTime;
                 }
             }
@@ -160,23 +164,11 @@ public class GameController : MonoBehaviour
         stageNumber = nextStage + 1;
     }
 
-    IEnumerator SpawnEnemy(Element element, float spawnTime) {
-        yield return new WaitForSeconds(spawnTime);
-
-        GameObject copy = GameObject.Instantiate(enemy);
-        var enemyInstance = copy.GetComponent<Enemy>();
-        enemyInstance.type = new CharType(element);
-        copy.GetComponent<Renderer>().material.color = enemyInstance.type.color;
-        copy.transform.position = player.transform.position + Random.onUnitSphere * 20;
-        Vector3 enemyPosition = copy.transform.position;
-        enemyPosition.y = terrain.SampleHeight(enemyPosition) + terrain.transform.position.y + 1;
-        copy.transform.position = enemyPosition;
-    }
     
     void StartInfiniteStage() {
         AddAllAvailableMagics();
         for (int i = 0; i < enemiesHordeSize; i++) {
-            StartCoroutine(SpawnEnemy((Element)Random.Range(0, 4), 0));
+            _enemyCreator.SpawnEnemies((Element)Random.Range(0, 4), 5*i, 1);
         }
         enemiesHordeSize++;
     }
