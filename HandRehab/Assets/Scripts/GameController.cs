@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using UnityEngine.Video;
 
@@ -55,8 +56,6 @@ public class GameController : MonoBehaviour
             ExerciseDetector.availableMagics.Add(ExerciseType.ROTATION);
         }
 
-        if (gameIsOver) return;
-
         if(canCheckEndStage)
             CheckEndStage();
 
@@ -87,10 +86,17 @@ public class GameController : MonoBehaviour
                         extendedFingers++;
                 }
                 if (extendedFingers == 1 && rightHand.Fingers[0].IsExtended) {
-                    requireOk = false;
-                    tv.SetActive(false);
-                    ExerciseDetector.availableMagics.Clear();
-                    StartStage(stageNumber);
+                    if (gameIsOver)
+                    {
+                        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+                    }
+                    else
+                    {
+                        requireOk = false;
+                        tv.SetActive(false);
+                        ExerciseDetector.availableMagics.Clear();
+                        StartStage(stageNumber);
+                    }
                 }
             }
         }
@@ -232,8 +238,9 @@ public class GameController : MonoBehaviour
             DestroyImmediate(enemy);
         }
 
-        requireOk = false;
+        requireOk = true;
         gameIsOver = true;
+        elapsedTime.text = "¡Pulgares arriba para reiniciar!";
     }
 
     void ToggleCheckEndOfStage() {
