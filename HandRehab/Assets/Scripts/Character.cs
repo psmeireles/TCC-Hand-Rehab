@@ -41,11 +41,26 @@ public class Character : MonoBehaviour
 
     public void Hit(float damage, Element element) {
         float damageMultiplier = 1;
+        switch (DifficultyManager.gameDifficulty)
+        {
+            case DifficultyManager.Difficulty.Easy:
+                damageMultiplier *= 2;
+                break;
+            case DifficultyManager.Difficulty.Medium:
+                break;
+            case DifficultyManager.Difficulty.Hard:
+                damageMultiplier *= 0.5f;
+                break;
+        }
+
+        if (this.tag == "Player")
+            damageMultiplier = 1 / damageMultiplier;
+
         if (element == type.getWeakness()) {
-            damageMultiplier = 2;
+            damageMultiplier *= 2;
         }
         else if (element == type.element) {
-            damageMultiplier = 0.5f;
+            damageMultiplier *= 0.5f;
         }
 
         hp -= damage * damageMultiplier;

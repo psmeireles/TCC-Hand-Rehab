@@ -1,13 +1,8 @@
 ﻿using Leap;
 using Leap.Unity;
-using System.Collections;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
-using UnityEngine.Video;
 
 public class GameController : MonoBehaviour
 {
