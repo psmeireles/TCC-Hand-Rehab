@@ -22,8 +22,6 @@ public class GameController : MonoBehaviour
     bool gameIsOver;
     int enemiesHordeSize;
     LeapProvider provider;
-    VideoClip currentVideo;
-    VideoPlayer videoPlayer;
 
     [SerializeField]
     private UIManager _uiManager;
