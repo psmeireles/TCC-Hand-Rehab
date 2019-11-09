@@ -11,11 +11,6 @@ using UnityEngine.Video;
 
 public class GameController : MonoBehaviour
 {
-    public GameObject enemy;
-    public GameObject player;
-    public Terrain terrain;
-    public Text gameOver;
-    public Text elapsedTime;
     public List<VideoClip> tutorialVideos;
     public GameObject tv;
     public List<TextAsset> stages;
@@ -66,7 +61,7 @@ public class GameController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(stageNumber == 0 && ExerciseDetector.availableMagics != null && ExerciseDetector.availableMagics.Count == 0) {
+        if(stageNumber == 0 && ExerciseDetector.availableMagics?.Count == 0) {
             ExerciseDetector.availableMagics.Add(ExerciseType.ROTATION);
         }
 
@@ -112,10 +107,6 @@ public class GameController : MonoBehaviour
                     }
                 }
             }
-        }
-
-        if (player.GetComponent<Character>().hp == 0) {
-            GameOver();
         }
     }
 
@@ -221,7 +212,7 @@ public class GameController : MonoBehaviour
         }
     }
 
-    void GameOver() {
+    public void GameOver() {
         Enemy.DestroyAllEnemies();
         requireOk = true;
         gameIsOver = true;

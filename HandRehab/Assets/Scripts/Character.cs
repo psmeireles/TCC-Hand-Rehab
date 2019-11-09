@@ -10,9 +10,15 @@ public class Character : MonoBehaviour
     public Slider hpBar;
     public Image fill;
     public CharType type;
+
+    private GameController _gameController;
     // Start is called before the first frame update
     protected virtual void Start()
     {
+        _gameController = GameObject.Find("GameController")?.GetComponent<GameController>();
+        if (_gameController == null)
+            Debug.LogError("GameController is null");
+
         // Fallback hp
         if (maxHp == 0) {
             maxHp = 100;
@@ -52,6 +58,10 @@ public class Character : MonoBehaviour
                 CancelInvoke();
                 Enemy.numberOfEnemies--;
                 GameObject.Destroy(this);
+            }
+            else if (this.tag == "Player")
+            {
+                _gameController.GameOver();
             }
         }
         if (hpBar != null) {
