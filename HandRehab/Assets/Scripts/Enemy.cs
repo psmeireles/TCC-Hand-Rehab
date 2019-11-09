@@ -6,6 +6,7 @@ using UnityEngine.UI;
 
 public class Enemy : Character
 {
+    public static int numberOfEnemies = 0;
     public GameObject player;
     public GameObject projectile;
 
@@ -18,6 +19,7 @@ public class Enemy : Character
     protected override void Start()
     {
         base.Start();
+        numberOfEnemies++;
         timeToNextShot = GenerateNextShotInterval();
         Invoke("Shoot", timeToNextShot);
         canvas = this.hpBar.GetComponentInParent<Canvas>();
@@ -62,5 +64,15 @@ public class Enemy : Character
 
     float GenerateNextShotInterval() {
         return Random.Range(5, 20);
+    }
+
+    public static void DestroyAllEnemies()
+    {
+        var enemies = GameObject.FindGameObjectsWithTag("Enemy");
+        foreach (GameObject enemy in enemies)
+        {
+            DestroyImmediate(enemy);
+            numberOfEnemies--;
+        }
     }
 }

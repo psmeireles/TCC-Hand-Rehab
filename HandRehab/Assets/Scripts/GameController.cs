@@ -183,20 +183,17 @@ public class GameController : MonoBehaviour
 
     void CheckEndStage() {
         if (gameIsOver) return;
-        if (!stageIsTimeBased) {
-            if (infiniteStage && GameObject.FindGameObjectsWithTag("Enemy").Length == 0) {
-                requireOk = true;
+        requireOk = Enemy.numberOfEnemies == 0;
+        if (!stageIsTimeBased && requireOk) {
+            if (infiniteStage) {
                 ExerciseDetector.availableMagics.Clear();
                 _uiManager.RequireOK();
             }
             else {
-                requireOk = GameObject.FindGameObjectsWithTag("Enemy").Length == 0;
-                if (requireOk) {
-                    ExerciseDetector.availableMagics.Clear();
-                    _uiManager.RequireOK();
-                    NextVideo();
-                    ExerciseDetector.availableMagics.Add((ExerciseType)stageNumber);
-                }
+                ExerciseDetector.availableMagics.Clear();
+                _uiManager.RequireOK();
+                NextVideo();
+                ExerciseDetector.availableMagics.Add((ExerciseType)stageNumber);
             }
             canCheckEndStage = !requireOk;
         }
@@ -204,10 +201,7 @@ public class GameController : MonoBehaviour
 
     void EndTimeBasedStage() {
         if (gameIsOver) return;
-        var enemies = GameObject.FindGameObjectsWithTag("Enemy");
-        foreach(GameObject enemy in enemies) {
-            DestroyImmediate(enemy);
-        }
+        Enemy.DestroyAllEnemies();
 
         stageIsTimeBased = false;
         requireOk = true;
@@ -236,12 +230,7 @@ public class GameController : MonoBehaviour
     }
 
     void GameOver() {
-
-        var enemies = GameObject.FindGameObjectsWithTag("Enemy");
-        foreach (GameObject enemy in enemies) {
-            DestroyImmediate(enemy);
-        }
-
+        Enemy.DestroyAllEnemies();
         requireOk = true;
         gameIsOver = true;
         _uiManager.GameOver();

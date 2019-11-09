@@ -47,10 +47,11 @@ public class Character : MonoBehaviour
             hp = 0;
         }
         if (hp == 0) {
-            if (this.tag != "Player") {
+            if (this.tag == "Enemy") {
                 this.gameObject.SetActive(false);
                 CancelInvoke();
-                GameObject.Destroy(this, 5);
+                Enemy.numberOfEnemies--;
+                GameObject.Destroy(this);
             }
         }
         if (hpBar != null) {
