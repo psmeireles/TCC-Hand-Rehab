@@ -38,7 +38,7 @@ public class UIManager : MonoBehaviour
         _auxiliarText.text = "Derrota a todos los enemigos";
     }
 
-    public void Stage(int number)
+    public void SetStage(int number)
     {
         _auxiliarText.text = $"Ronda {number}";
     }

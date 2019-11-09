@@ -146,7 +146,7 @@ public class GameController : MonoBehaviour
         else {
             infiniteStage = true;
             time = 0;
-            _uiManager.Stage(stageNumber + 1);
+            _uiManager.SetStage(stageNumber + 1);
             StartInfiniteStage();
             Invoke("ToggleCheckEndOfStage", 5);
         }
