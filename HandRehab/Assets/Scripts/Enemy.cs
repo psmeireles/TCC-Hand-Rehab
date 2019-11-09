@@ -9,7 +9,7 @@ public class Enemy : Character
     public static int numberOfEnemies = 0;
     public GameObject player;
     public GameObject projectile;
-
+    
     Slider attackBar;
     float timeToNextShot;
     AudioSource shootSound;
@@ -21,7 +21,7 @@ public class Enemy : Character
         base.Start();
         numberOfEnemies++;
         timeToNextShot = GenerateNextShotInterval();
-        Invoke("Shoot", timeToNextShot);
+        StartCoroutine(Shoot());
         canvas = this.hpBar.GetComponentInParent<Canvas>();
         attackBar = GetComponentsInChildren<Slider>().Where(c => c.name == "Attack Bar").ToArray()[0];
         if(attackBar != null) {
@@ -29,6 +29,14 @@ public class Enemy : Character
             attackBar.value = 0;
         }
         shootSound = GetComponent<AudioSource>();
+    }
+
+    private GameObject CreateBulletObject()
+    {
+        var bullet = GameObject.Instantiate(projectile);
+        bullet.GetComponent<Renderer>().material.color = this.type.color;
+        bullet.GetComponent<Attack>().element = this.type.element;
+        return bullet;
     }
 
     // Update is called once per frame
@@ -41,25 +49,21 @@ public class Enemy : Character
         }
     }
 
-    void Shoot() {
-        this.transform.LookAt(player.transform);
-        GameObject bullet = GameObject.Instantiate(projectile);
-        bullet.GetComponent<Renderer>().material.color = this.type.color;
-        bullet.GetComponent<Attack>().element = this.type.element;
-        Rigidbody rb = bullet.GetComponent<Rigidbody>();
-        bullet.transform.position = this.transform.position + this.transform.forward*2;
-        rb.AddForce((player.transform.position - this.transform.position) * 150);
+    IEnumerator Shoot() {
+        while (true)
+        {
+            yield return new WaitForSeconds(timeToNextShot);
+            this.transform.LookAt(player.transform);
+            GameObject newBullet = CreateBulletObject();
+            newBullet.GetComponent<Attack>().Shoot(this.transform.position, player.transform.position);
+            shootSound.Play();
 
-        shootSound.Play();
-
-        GameObject.Destroy(bullet, 5);
-
-        timeToNextShot = GenerateNextShotInterval();
-        if (attackBar != null) {
-            attackBar.maxValue = timeToNextShot;
-            attackBar.value = 0;
+            timeToNextShot = GenerateNextShotInterval();
+            if (attackBar != null) {
+                attackBar.maxValue = timeToNextShot;
+                attackBar.value = 0;
+            }
         }
-        Invoke("Shoot", timeToNextShot);
     }
 
     float GenerateNextShotInterval() {

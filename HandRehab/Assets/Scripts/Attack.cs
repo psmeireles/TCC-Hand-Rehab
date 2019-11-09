@@ -42,4 +42,13 @@ public class Attack : MonoBehaviour
             character.Hit(5f, element);
         }
     }
+
+    public void Shoot(Vector3 origin, Vector3 target)
+    {
+        Rigidbody rb = this.gameObject.GetComponent<Rigidbody>();
+        var direction = target - origin;
+        this.gameObject.transform.position = origin + direction.normalized * 2;
+        rb.AddForce(direction * 150);
+        GameObject.Destroy(this.gameObject, 5);
+    }
 }
