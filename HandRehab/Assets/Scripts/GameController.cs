@@ -32,6 +32,9 @@ public class GameController : MonoBehaviour
     VideoClip currentVideo;
     VideoPlayer videoPlayer;
 
+    [SerializeField]
+    private UIManager _uiManager;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -47,6 +50,11 @@ public class GameController : MonoBehaviour
         }
         videoPlayer = tv.GetComponentInChildren<VideoPlayer>();
         videoPlayer.clip = currentVideo;
+
+        _uiManager = GameObject.Find("PlayerCanvas")?.GetComponent<UIManager>();
+
+        if (_uiManager == null)
+            Debug.LogError("UIManager is null");
     }
 
     // Update is called once per frame
@@ -61,7 +69,7 @@ public class GameController : MonoBehaviour
 
         if (stageIsTimeBased) {
             time -= Time.deltaTime;
-            elapsedTime.text = $"Sobrevive por {(int)time} segundos";
+            _uiManager.SurviveFor((int)time);
         }
         if (requireOk) {
             Hand rightHand = null;
@@ -70,7 +78,6 @@ public class GameController : MonoBehaviour
 
             if (frame.Hands.Capacity > 0) {
                 foreach (Hand h in frame.Hands) {
-                    //Debug.Log(h);
                     if (h.IsLeft)
                         leftHand = h;
                     if (h.IsRight)
@@ -116,7 +123,7 @@ public class GameController : MonoBehaviour
                     float stageTime = float.Parse(items[1]);
                     if (stageTime == -1) {
                         stageIsTimeBased = false;
-                        elapsedTime.text = "Derrota a todos los enemigos";
+                        _uiManager.DefeatAllEnemies();
                     }
                     else {
                         stageIsTimeBased = true;
@@ -145,8 +152,7 @@ public class GameController : MonoBehaviour
         else {
             infiniteStage = true;
             time = 0;
-            elapsedTime.gameObject.SetActive(true);
-            elapsedTime.text = $"Ronda {stageNumber + 1}";
+            _uiManager.Stage(stageNumber + 1);
             StartInfiniteStage();
             Invoke("ToggleCheckEndOfStage", 5);
         }
@@ -181,13 +187,13 @@ public class GameController : MonoBehaviour
             if (infiniteStage && GameObject.FindGameObjectsWithTag("Enemy").Length == 0) {
                 requireOk = true;
                 ExerciseDetector.availableMagics.Clear();
-                elapsedTime.text = "¡Pulgares arriba cuando estés listo!";
+                _uiManager.RequireOK();
             }
             else {
                 requireOk = GameObject.FindGameObjectsWithTag("Enemy").Length == 0;
                 if (requireOk) {
                     ExerciseDetector.availableMagics.Clear();
-                    elapsedTime.text = "¡Pulgares arriba cuando estés listo!";
+                    _uiManager.RequireOK();
                     NextVideo();
                     ExerciseDetector.availableMagics.Add((ExerciseType)stageNumber);
                 }
@@ -206,8 +212,8 @@ public class GameController : MonoBehaviour
         stageIsTimeBased = false;
         requireOk = true;
         NextVideo();
-        
-        elapsedTime.text = "¡Pulgares arriba cuando estés listo!";
+
+        _uiManager.RequireOK();
         ExerciseDetector.availableMagics.Clear();
         ExerciseDetector.availableMagics.Add((ExerciseType)stageNumber);
     }
@@ -230,8 +236,6 @@ public class GameController : MonoBehaviour
     }
 
     void GameOver() {
-        gameOver.gameObject.SetActive(true);
-        elapsedTime.gameObject.SetActive(true);
 
         var enemies = GameObject.FindGameObjectsWithTag("Enemy");
         foreach (GameObject enemy in enemies) {
@@ -240,7 +244,7 @@ public class GameController : MonoBehaviour
 
         requireOk = true;
         gameIsOver = true;
-        elapsedTime.text = "¡Pulgares arriba para reiniciar!";
+        _uiManager.GameOver();
     }
 
     void ToggleCheckEndOfStage() {
