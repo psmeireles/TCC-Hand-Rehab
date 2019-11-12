@@ -85,20 +85,34 @@ public class GameController : MonoBehaviour
                     if (f.IsExtended)
                         extendedFingers++;
                 }
-                if (extendedFingers == 1 && rightHand.Fingers[0].IsExtended) {
-                    if (gameIsOver)
-                    {
-                        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-                    }
-                    else
-                    {
-                        requireOk = false;
-                        _tutorialManager.DisableTV();
-                        ExerciseDetector.availableMagics.Clear();
-                        StartStage(stageNumber);
-                    }
+                if (extendedFingers == 1 && rightHand.Fingers[0].IsExtended)
+                {
+                    _uiManager.OK();
+                }
+                else
+                {
+                    _uiManager.CancelOK();
                 }
             }
+            else
+            {
+                _uiManager.CancelOK();
+            }
+        }
+    }
+
+    public void NextStage()
+    {
+        if (gameIsOver)
+        {
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        }
+        else
+        {
+            requireOk = false;
+            _tutorialManager.DisableTV();
+            ExerciseDetector.availableMagics.Clear();
+            StartStage(stageNumber);
         }
     }
 
