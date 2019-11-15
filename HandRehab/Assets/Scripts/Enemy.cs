@@ -75,7 +75,7 @@ public class Enemy : Character
         var enemies = GameObject.FindGameObjectsWithTag("Enemy");
         foreach (GameObject enemy in enemies)
         {
-            DestroyImmediate(enemy);
+            Destroy(enemy);
             numberOfEnemies--;
         }
     }
