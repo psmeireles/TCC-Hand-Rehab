@@ -53,6 +53,11 @@ public class GameController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            Application.Quit();
+        }
+        
         if(stageNumber == 0 && ExerciseDetector.availableMagics?.Count == 0) {
             ExerciseDetector.availableMagics.Add(ExerciseType.ROTATION);
         }
