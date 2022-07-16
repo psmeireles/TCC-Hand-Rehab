@@ -4,35 +4,28 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.Networking;
 using SimpleJSON;
 
-public class ChainLightning : MonoBehaviour {
+public class ChainLightning : Strength {
     List<GameObject> targets;
     public GameObject lightningBolt;
     public float range;
     public float damage;
-    public float strength;
 
     // Start is called before the first frame update
     void Start() {
         targets = new List<GameObject>(GameObject.FindGameObjectsWithTag("Enemy"));
         range = range == 0 ? 10 : range;
         damage = damage == 0 ? 10 : damage;
-        strength = strength == 0 ? 1 : strength;
 
-        StartCoroutine( GetMyoData ("http://localhost:8000/strength") );
+        StartCoroutine( GetMyoData("http://localhost:8000/strength") );
     }
 
     // Update is called once per frame
     void Update() {}
 
-    // Set strength based on recieved value
-    public void setStrength(float newStrength)
-    {
-        strength = newStrength;
-    }
-    
 
     public void LightItUp(Hand hand) {
         GameObject firstEnemy = FindFirstEnemy(hand, range);
@@ -108,30 +101,4 @@ public class ChainLightning : MonoBehaviour {
 
         return closestEnemy;
     }
-
-    
-    IEnumerator GetMyoData( string address ) 
-    {
-        // Request GET from server
-        UnityWebRequest www = UnityWebRequest.Get( address );
-        yield return www.SendWebRequest();
-
-        // Verify if response has an error
-        if ( www.isHttpError ) 
-            Debug.LogError(www.error);
-        
-        // Proccess Response from text to a JSON
-        else ProccessServerResponse(www.downloadHandler.text);
-    }
-
-    void ProccessServerResponse ( string rawResponse )
-    { 
-        // That text, is actually a JSON info, so we need to parse that into something we can navigate.
-        JSONNode node = JSON.Parse( rawResponse );
-
-        // Changes current strength value in case the server response was successfull
-        if (node["meta"]["success"] == true) 
-            setStrength(node["data"]["strength"]);
-        
-    }   
 }
