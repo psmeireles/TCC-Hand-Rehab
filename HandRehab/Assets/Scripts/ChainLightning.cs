@@ -4,17 +4,23 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Networking;
+using SimpleJSON;
 
 public class ChainLightning : MonoBehaviour {
     List<GameObject> targets;
     public GameObject lightningBolt;
     public float range;
     public float damage;
+    public float strength;
+    public GameObject myo;
     // Start is called before the first frame update
     void Start() {
         targets = new List<GameObject>(GameObject.FindGameObjectsWithTag("Enemy"));
         range = range == 0 ? 10 : range;
         damage = damage == 0 ? 10 : damage;
+        strength = strength == 0 ? 1 : strength;
+        // StartCoroutine( GetMyoData ("http://localhost:8000/strength") );
     }
 
     // Update is called once per frame
@@ -22,8 +28,12 @@ public class ChainLightning : MonoBehaviour {
 
     }
 
-    public void LightItUp(Hand hand) {
+    public void setStrength(float strength) {
+        this.strength = strength;
+    }
 
+    public void LightItUp(Hand hand) {
+        GetMyoData("http://localhost:8000/strength");
         GameObject firstEnemy = FindFirstEnemy(hand, range);
         if (firstEnemy != null) {
             GameObject nextEnemy = firstEnemy;
@@ -36,7 +46,7 @@ public class ChainLightning : MonoBehaviour {
 
             // Finding enemies in chain
             while (nextEnemy != null) {
-                nextEnemy.GetComponent<Enemy>().Hit(damage, Element.LIGHTNING);
+                nextEnemy.GetComponent<Enemy>().Hit(damage * strength, Element.LIGHTNING);
                 currentPosition = nextPosition;
                 nextPosition = nextEnemy.transform.position;
                 positions.Add(nextPosition);
@@ -96,4 +106,38 @@ public class ChainLightning : MonoBehaviour {
 
         return closestEnemy;
     }
+
+      
+    IEnumerator GetMyoData( string address ) 
+    {
+        UnityWebRequest www = UnityWebRequest.Get( address );
+        yield return www.SendWebRequest();
+
+
+        if ( www.isHttpError ) {
+            Debug.Log(www.error);
+        }
+        else {
+            // Show results as text
+            Debug.Log(www.downloadHandler.text);
+ 
+            // Or retrieve results as binary data
+            byte[] results = www.downloadHandler.data;
+
+        }
+       
+    }
+
+    void ProccessServerResponse ( string rawResponse )
+    { 
+        // That text, is actually a JSON info, so we need to parse that into something we can navigate.
+
+        JSONNode node = JSON.Parse( rawResponse );
+
+        // Output some stuff to the console so that we know that it worked.
+
+        if (node["meta"]["success"] == true) {
+            setStrength(node["data"]["streamEMG"]);
+        }
+    }   
 }
