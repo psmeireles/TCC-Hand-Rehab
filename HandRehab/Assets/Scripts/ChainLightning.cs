@@ -13,28 +13,30 @@ public class ChainLightning : MonoBehaviour {
     public float range;
     public float damage;
     public float strength;
-    public GameObject myo;
+
     // Start is called before the first frame update
     void Start() {
         targets = new List<GameObject>(GameObject.FindGameObjectsWithTag("Enemy"));
         range = range == 0 ? 10 : range;
         damage = damage == 0 ? 10 : damage;
         strength = strength == 0 ? 1 : strength;
-        // StartCoroutine( GetMyoData ("http://localhost:8000/strength") );
+
+        StartCoroutine( GetMyoData ("http://localhost:8000/strength") );
     }
 
     // Update is called once per frame
-    void Update() {
+    void Update() {}
 
+    // Set strength based on recieved value
+    public void setStrength(float newStrength)
+    {
+        strength = newStrength;
     }
-
-    public void setStrength(float strength) {
-        this.strength = strength;
-    }
+    
 
     public void LightItUp(Hand hand) {
-        GetMyoData("http://localhost:8000/strength");
         GameObject firstEnemy = FindFirstEnemy(hand, range);
+        Debug.LogWarning("Damage dealt on enemy: " + (damage*strength).ToString());
         if (firstEnemy != null) {
             GameObject nextEnemy = firstEnemy;
             Vector3 currentPosition;
@@ -107,37 +109,29 @@ public class ChainLightning : MonoBehaviour {
         return closestEnemy;
     }
 
-      
+    
     IEnumerator GetMyoData( string address ) 
     {
+        // Request GET from server
         UnityWebRequest www = UnityWebRequest.Get( address );
         yield return www.SendWebRequest();
 
-
-        if ( www.isHttpError ) {
-            Debug.Log(www.error);
-        }
-        else {
-            // Show results as text
-            Debug.Log(www.downloadHandler.text);
- 
-            // Or retrieve results as binary data
-            byte[] results = www.downloadHandler.data;
-
-        }
-       
+        // Verify if response has an error
+        if ( www.isHttpError ) 
+            Debug.LogError(www.error);
+        
+        // Proccess Response from text to a JSON
+        else ProccessServerResponse(www.downloadHandler.text);
     }
 
     void ProccessServerResponse ( string rawResponse )
     { 
         // That text, is actually a JSON info, so we need to parse that into something we can navigate.
-
         JSONNode node = JSON.Parse( rawResponse );
 
-        // Output some stuff to the console so that we know that it worked.
-
-        if (node["meta"]["success"] == true) {
-            setStrength(node["data"]["streamEMG"]);
-        }
+        // Changes current strength value in case the server response was successfull
+        if (node["meta"]["success"] == true) 
+            setStrength(node["data"]["strength"]);
+        
     }   
 }
