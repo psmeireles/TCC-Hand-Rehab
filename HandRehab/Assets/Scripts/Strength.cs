@@ -7,20 +7,21 @@ using SimpleJSON;
 
 public class Strength : MonoBehaviour
 {
-    public float maxStength;
+    // public float maxStength;
     public float strength;
-    public Slider strengthBar;
-    public Image fill;
-    public CharType type;
+    // public Slider strengthBar;
+    // public Image fill;
+    // public CharType type;
 
     // Start is called before the first frame update
     protected virtual void Start()
     {
         // Fallback hp
-        maxStength = maxStength == 0 ? 1 : maxStength;
         strength = strength == 0 ? 1 : strength;
+        // maxStength = maxStength == 0 ? 1 : maxStength;
 
         //strength = maxStength;
+        /*
         if (strengthBar != null)
         {
             strengthBar.maxValue = maxStength;
@@ -31,6 +32,7 @@ public class Strength : MonoBehaviour
         {
             type = new CharType(Element.NORMAL);
         }
+        */
 
 
 
@@ -67,9 +69,19 @@ public class Strength : MonoBehaviour
         JSONNode node = JSON.Parse(rawResponse);
 
         // Changes current strength value in case the server response was successfull
-        if (node["meta"]["success"] == true)
-            setStrength(node["data"]["strength"]);
-
+        if (node != null && 
+            node["meta"] != null && 
+            node["meta"]["success"] == true) 
+        {
+            // Verify if data object is null and if strength's data is lower than 3. 
+            // The reason behind this is to avoid interfearing values where makes the strength too powerfull
+            if (node["data"] != null && 
+                node["data"]["strength"] != null && 
+                node["data"]["strength"] < 3)
+            {
+                setStrength(node["data"]["strength"]);
+            }
+        }
     }
 
 
