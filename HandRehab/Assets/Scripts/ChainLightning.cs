@@ -4,27 +4,32 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.Networking;
+using SimpleJSON;
 
-public class ChainLightning : MonoBehaviour {
+public class ChainLightning : Strength {
     List<GameObject> targets;
     public GameObject lightningBolt;
     public float range;
     public float damage;
+
     // Start is called before the first frame update
     void Start() {
         targets = new List<GameObject>(GameObject.FindGameObjectsWithTag("Enemy"));
         range = range == 0 ? 10 : range;
         damage = damage == 0 ? 10 : damage;
+
+        StartCoroutine( GetMyoData("http://localhost:8000/strength") );
     }
 
     // Update is called once per frame
-    void Update() {
+    void Update() {}
 
-    }
 
     public void LightItUp(Hand hand) {
-
         GameObject firstEnemy = FindFirstEnemy(hand, range);
+        Debug.LogWarning("Damage dealt on enemy: " + (damage*strength).ToString());
         if (firstEnemy != null) {
             GameObject nextEnemy = firstEnemy;
             Vector3 currentPosition;
@@ -36,7 +41,7 @@ public class ChainLightning : MonoBehaviour {
 
             // Finding enemies in chain
             while (nextEnemy != null) {
-                nextEnemy.GetComponent<Enemy>().Hit(damage, Element.LIGHTNING);
+                nextEnemy.GetComponent<Enemy>().Hit(damage * strength, Element.LIGHTNING);
                 currentPosition = nextPosition;
                 nextPosition = nextEnemy.transform.position;
                 positions.Add(nextPosition);
